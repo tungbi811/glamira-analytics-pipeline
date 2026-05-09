@@ -10,7 +10,7 @@ UNIQUE_IP_COLLECTION      = os.getenv("UNIQUE_IP_COLLECTION", "unique_ips")
 IP_OUTPUT_COLLECTION      = os.getenv("IP_OUTPUT_COLLECTION", "ip_locations")
 SUMMARY_COLLECTION        = os.getenv("SUMMARY_COLLECTION", "summary")
 PRODUCT_INPUT_COLLECTION  = os.getenv("PRODUCT_INPUT_COLLECTION", "product_urls")
-PRODUCT_OUTPUT_COLLECTION = os.getenv("PRODUCT_OUTPUT_COLLECTION", "product_names")
+PRODUCT_OUTPUT_COLLECTION = os.getenv("PRODUCT_OUTPUT_COLLECTION", "product_details")
 
 # ── Local paths ───────────────────────────────────────
 DATA_DIR = os.getenv("DATA_DIR", os.path.join(os.path.dirname(__file__), "..", "data"))
