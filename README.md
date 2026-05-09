@@ -2,7 +2,6 @@
 
 End-to-end data engineering project that ingests ~41M raw user-event records from a Glamira e-commerce dataset, lands them in a cloud data warehouse, models them with dbt, and serves the results through BI dashboards.
 
-> **Author:** `Duy Tung`
 > **Stack:** Python · MongoDB · Google Cloud (GCS, Compute Engine, Cloud Functions, BigQuery) · dbt · Looker
 
 ---
