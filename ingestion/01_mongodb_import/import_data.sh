@@ -28,7 +28,14 @@ else
     gcloud storage cp "gs://unigap/glamira-data/raw/IP Country Region City.BIN" "$RAW_DIR/$BIN_FILE"
 fi
 
-echo "Extracting $TAR_FILE..."
-tar -xzf "$RAW_DIR/$TAR_FILE" -C "$RAW_DIR"
+if [ -d "$RAW_DIR/dump" ]; then
+    echo "Skipping extraction — dump folder already exists"
+else
+    echo "Extracting $TAR_FILE..."
+    tar -xzf "$RAW_DIR/$TAR_FILE" -C "$RAW_DIR"
+fi
+
+echo "Importing into MongoDB..."
+mongorestore "$RAW_DIR/dump/"
 
 echo "Done!"
