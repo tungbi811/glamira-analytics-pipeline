@@ -5,7 +5,7 @@ echo "  Glamira Data Download Start "
 echo "=============================="
 
 TAR_FILE="glamira_ubl_oct_nov_2019.tar.gz"
-BIN_FILE="ip_country_region_city.bin"
+BIN_FILE="ip2location.bin"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"

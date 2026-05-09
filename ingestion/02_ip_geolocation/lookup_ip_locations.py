@@ -8,7 +8,7 @@ from config import (
     UNIQUE_IP_COLLECTION,
     IP_OUTPUT_COLLECTION as OUTPUT_COLLECTION,
     IP2LOCATION_BIN_PATH as BIN_PATH,
-    IP_BATCH_SIZE        as BATCH_SIZE,
+    BATCH_SIZE,
 )
 
 client = pymongo.MongoClient(MONGO_URI)
