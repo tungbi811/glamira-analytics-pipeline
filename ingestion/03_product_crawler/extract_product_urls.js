@@ -1,4 +1,5 @@
-db = connect("mongodb://localhost:27017/countly");
+const host = process.env.VM_EXTERNAL_IP || "localhost";
+db = connect(`mongodb://${host}:27017/countly`);
 
 print("Starting aggregation...");
 

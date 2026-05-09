@@ -17,7 +17,6 @@ DATA_DIR = os.getenv("DATA_DIR", os.path.join(os.path.dirname(__file__), "..", "
 
 IP2LOCATION_BIN_PATH  = os.getenv("IP2LOCATION_BIN_PATH", os.path.join(DATA_DIR, "raw", "ip2location.bin"))
 SUMMARY_OUTPUT_DIR    = os.getenv("SUMMARY_OUTPUT_DIR",    os.path.join(DATA_DIR, "processed", "summary"))
-PRODUCT_OUTPUT_CSV    = os.getenv("PRODUCT_OUTPUT_CSV",    os.path.join(DATA_DIR, "processed", "product_names.csv"))
 PRODUCT_LOG_FILE      = os.getenv("PRODUCT_LOG_FILE",      os.path.join(DATA_DIR, "processed", "crawl_errors.log"))
 
 # ── GCS ───────────────────────────────────────────────
