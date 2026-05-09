@@ -18,6 +18,7 @@ from config import (
     PRODUCT_LOG_FILE          as LOG_FILE,
 )
 
+# Progressive backoff rounds — later rounds are slower with fewer workers to avoid rate limiting
 ROUNDS = [
     (2.0, 4.0,  5),
     (5.0, 8.0,  3),
@@ -36,12 +37,15 @@ logging.basicConfig(
 )
 
 def log_error(product_id, url, reason):
+    """Log a crawl failure with product context."""
     logging.error(f"product_id={product_id} | url={url} | reason={reason}")
 
 def make_catalog_url(product_id):
+    """Build the canonical Glamira catalog URL for a product ID."""
     return f"https://www.glamira.com/catalog/product/view/id/{product_id}"
 
 def parse_react_data(html, product_id):
+    """Extract product fields from the var react_data JSON embedded in the page script."""
     try:
         soup = BeautifulSoup(html, "html.parser")
         for script in soup.find_all("script"):
@@ -70,6 +74,7 @@ def parse_react_data(html, product_id):
     return None
 
 def crawl_one(args):
+    """Crawl a single product, trying catalog URL first then original URL as fallback. Returns (product_id, url, parsed_data, source)."""
     product, browser_type, delay_min, delay_max = args
     product_id = product["product_id"]
     original_url = product.get("url", "")
@@ -81,7 +86,7 @@ def crawl_one(args):
             time.sleep(random.uniform(delay_min, delay_max))
             print(f"  → [{product_id}] trying: {url_to_try} | browser: {browser_type}")
 
-            response = requests.get(url_to_try, impersonate=browser_type, timeout=15, verify=False)
+            response = requests.get(url_to_try, impersonate=browser_type, timeout=15, verify=False)  # verify=False: some Glamira regional domains use self-signed certs
 
             if response.status_code == 200:
                 parsed = parse_react_data(response.text, product_id)
@@ -131,6 +136,7 @@ def crawl_one(args):
     return product_id, catalog_url, None, "failed_all"
 
 def run_round(products, round_num, delay_min, delay_max, max_workers):
+    """Crawl a list of products concurrently. Returns the list of products that failed for the next round."""
     total = len(products)
     print(f"\n{'='*70}")
     print(f"ROUND {round_num} | {total:,} products | delay: {delay_min}-{delay_max}s | workers: {max_workers}")
@@ -192,46 +198,47 @@ def run_round(products, round_num, delay_min, delay_max, max_workers):
     return failed_products
 
 
-start_time = time.time()
+if __name__ == "__main__":
+    start_time = time.time()
 
-client = pymongo.MongoClient(MONGO_URI)
-db = client[DB_NAME]
-out_col = db[OUTPUT_COLLECTION]
+    client = pymongo.MongoClient(MONGO_URI)
+    db = client[DB_NAME]
+    out_col = db[OUTPUT_COLLECTION]
 
-print("Loading product URLs from MongoDB...")
-all_products = list(db[INPUT_COLLECTION].find({}, {"_id": 0, "product_id": 1, "url": 1}))
-print(f"Total products: {len(all_products):,}")
+    print("Loading product URLs from MongoDB...")
+    all_products = list(db[INPUT_COLLECTION].find({}, {"_id": 0, "product_id": 1, "url": 1}))
+    print(f"Total products: {len(all_products):,}")
 
-already_done = set(
-    doc["product_id"] for doc in out_col.find({}, {"_id": 0, "product_id": 1})
-)
-if already_done:
-    print(f"Already crawled : {len(already_done):,} — skipping")
+    already_done = set(
+        doc["product_id"] for doc in out_col.find({}, {"_id": 0, "product_id": 1})
+    )
+    if already_done:
+        print(f"Already crawled : {len(already_done):,} — skipping")
 
-products = [p for p in all_products if p["product_id"] not in already_done]
-print(f"Remaining       : {len(products):,}")
+    products = [p for p in all_products if p["product_id"] not in already_done]
+    print(f"Remaining       : {len(products):,}")
 
-all_results = []
+    all_results = []
 
-for round_num, (delay_min, delay_max, max_workers) in enumerate(ROUNDS, start=1):
-    products = run_round(products, round_num, delay_min, delay_max, max_workers)
-    if not products:
-        print(f"\n✓ All products crawled by round {round_num}!")
-        break
+    for round_num, (delay_min, delay_max, max_workers) in enumerate(ROUNDS, start=1):
+        products = run_round(products, round_num, delay_min, delay_max, max_workers)
+        if not products:
+            print(f"\n✓ All products crawled by round {round_num}!")
+            break
 
-remainder = len(all_results) % 100
-if remainder:
-    out_col.insert_many(all_results[-remainder:])
+    remainder = len(all_results) % 100
+    if remainder:
+        out_col.insert_many(all_results[-remainder:])
 
-elapsed = time.time() - start_time
-hours, rem = divmod(int(elapsed), 3600)
-minutes, seconds = divmod(rem, 60)
+    elapsed = time.time() - start_time
+    hours, rem = divmod(int(elapsed), 3600)
+    minutes, seconds = divmod(rem, 60)
 
-print(f"\n{'='*70}")
-print(f"FINAL RESULTS")
-print(f"  Total crawled : {len(all_results) + len(already_done):,}")
-print(f"  Still failed  : {len(products):,}")
-print(f"  Errors logged : {LOG_FILE}")
-print(f"  Total time    : {hours}h {minutes}m {seconds}s")
-print(f"{'='*70}")
-client.close()
+    print(f"\n{'='*70}")
+    print(f"FINAL RESULTS")
+    print(f"  Total crawled : {len(all_results) + len(already_done):,}")
+    print(f"  Still failed  : {len(products):,}")
+    print(f"  Errors logged : {LOG_FILE}")
+    print(f"  Total time    : {hours}h {minutes}m {seconds}s")
+    print(f"{'='*70}")
+    client.close()

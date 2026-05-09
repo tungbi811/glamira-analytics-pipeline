@@ -11,50 +11,51 @@ from config import (
     BATCH_SIZE,
 )
 
-client = pymongo.MongoClient(MONGO_URI)
-db = client[DB_NAME]
-ip2loc = IP2Location.IP2Location(BIN_PATH)
+if __name__ == "__main__":
+    client = pymongo.MongoClient(MONGO_URI)
+    db = client[DB_NAME]
+    ip2loc = IP2Location.IP2Location(BIN_PATH)
 
-total = db[UNIQUE_IP_COLLECTION].count_documents({})
-print(f"Total unique IPs: {total:,}")
+    total = db[UNIQUE_IP_COLLECTION].count_documents({})
+    print(f"Total unique IPs: {total:,}")
 
-out_col = db[OUTPUT_COLLECTION]
-out_col.drop()
+    out_col = db[OUTPUT_COLLECTION]
+    out_col.drop()
 
-processed = 0
-errors = 0
-batch = []
+    processed = 0
+    errors = 0
+    batch = []
 
-cursor = db[UNIQUE_IP_COLLECTION].find({}, {"_id": 0, "ip": 1}).batch_size(BATCH_SIZE)
+    cursor = db[UNIQUE_IP_COLLECTION].find({}, {"_id": 0, "ip": 1}).batch_size(BATCH_SIZE)
 
-for doc in cursor:
-    ip = doc.get("ip", "")
-    if not ip or ip == "-":
-        errors += 1
-        continue
+    for doc in cursor:
+        ip = doc.get("ip", "")
+        if not ip or ip == "-":
+            errors += 1
+            continue
 
-    try:
-        rec = ip2loc.get_all(ip)
-        batch.append({
-            "ip":           ip,
-            "country_code": rec.country_short,
-            "country_name": rec.country_long,
-            "region":       rec.region,
-            "city":         rec.city,
-        })
-    except Exception:
-        errors += 1
-        continue
+        try:
+            rec = ip2loc.get_all(ip)
+            batch.append({
+                "ip":           ip,
+                "country_code": rec.country_short,
+                "country_name": rec.country_long,
+                "region":       rec.region,
+                "city":         rec.city,
+            })
+        except Exception:
+            errors += 1
+            continue
 
-    if len(batch) >= BATCH_SIZE:
+        if len(batch) >= BATCH_SIZE:
+            out_col.insert_many(batch)
+            processed += len(batch)
+            batch = []
+            print(f"  Processed {processed:,} / {total:,}")
+
+    if batch:
         out_col.insert_many(batch)
         processed += len(batch)
-        batch = []
-        print(f"  Processed {processed:,} / {total:,}")
 
-if batch:
-    out_col.insert_many(batch)
-    processed += len(batch)
-
-print(f"Done! Processed {processed:,}, errors {errors:,}")
-client.close()
+    print(f"Done! Processed {processed:,}, errors {errors:,}")
+    client.close()

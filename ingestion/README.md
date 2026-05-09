@@ -46,7 +46,7 @@ tail -f logs/lookup_ip.log
 
 ## Step 3 — Product Crawler
 
-Extract 19,418 unique product URLs, then crawl each for product details.
+Extract 19,418 unique product URLs, then crawl each for product details. 18,987 successfully crawled, 431 not found (404 — products no longer exist on Glamira's site).
 
 ```bash
 # Extract unique product URLs → writes to product_urls collection
