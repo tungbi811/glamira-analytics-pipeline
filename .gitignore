@@ -1,0 +1,28 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Environment variables — never commit secrets or machine-specific config
+.env
+.env.*
+
+# Data files — too large and machine-specific for version control
+data/
+*.csv
+*.jsonl
+*.log
+
+# IP2Location binary database
+*.bin
+
+# dbt build artifacts (already in dbt/.gitignore, belt-and-suspenders)
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
