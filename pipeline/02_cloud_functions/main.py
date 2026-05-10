@@ -66,47 +66,49 @@ SUMMARY_SCHEMA = [
 
 @functions_framework.cloud_event
 def trigger_bigquery_load(cloud_event):
-    """Cloud Run function triggered by a new file in GCS. Appends the file to the matching BigQuery table."""
-    data      = cloud_event.data
-    bucket    = data["bucket"]
+    data = cloud_event.data
+    
+    # Use standard GCS event data
+    bucket = data["bucket"]
     file_name = data["name"]
 
-    table_id   = None
+    table_id = None
     use_schema = False
 
     for prefix, (table, schema) in COLLECTION_MAP.items():
         if file_name.startswith(prefix) and file_name.endswith(".jsonl"):
-            table_id   = table
+            table_id = table
             use_schema = schema
             break
 
     if not table_id:
-        print(f"Skipping {file_name} — no matching collection")
         return
 
     client = bigquery.Client()
     client.create_dataset(f"{PROJECT}.{DATASET}", exists_ok=True)
 
-    table_ref  = f"{PROJECT}.{DATASET}.{table_id}"
+    table_ref = f"{PROJECT}.{DATASET}.{table_id}"
     source_uri = f"gs://{bucket}/{file_name}"
 
+    # FIX: Use the filename (sanitized) as the Job ID. 
+    # If the function retries, BigQuery will see the Job ID already exists and won't insert twice.
+    job_id = f"load_{file_name.replace('/', '_').replace('.', '_')}"
+
     job_config = bigquery.LoadJobConfig(
-        source_format         = bigquery.SourceFormat.NEWLINE_DELIMITED_JSON,
-        write_disposition     = bigquery.WriteDisposition.WRITE_APPEND,
-        ignore_unknown_values = True,
+        source_format=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON,
+        write_disposition=bigquery.WriteDisposition.WRITE_APPEND,
+        ignore_unknown_values=True,
+        schema=SUMMARY_SCHEMA if use_schema else None,
+        autodetect=False if use_schema else True
     )
 
-    if use_schema:
-        job_config.schema = SUMMARY_SCHEMA
-    else:
-        job_config.autodetect = True
-
-    print(f"Loading {source_uri} → {table_ref}")
-    job = client.load_table_from_uri(source_uri, table_ref, job_config=job_config)
-
     try:
-        job.result()
-        print(f"Done — {job.output_rows:,} rows loaded into {table_ref}")
+        job = client.load_table_from_uri(source_uri, table_ref, job_config=job_config, job_id=job_id)
+        job.result() 
+        print(f"Loaded {file_name}")
     except Exception as e:
-        print(f"FAILED: {e}")
-        raise
+        if "Already Exists" in str(e):
+            print(f"Job {job_id} already completed successfully.")
+        else:
+            print(f"Error: {e}")
+            raise e 
