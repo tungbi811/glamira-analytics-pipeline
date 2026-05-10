@@ -41,7 +41,7 @@
 
 **Fix**: Use a unique BigQuery **job ID** derived from the filename (see problem #7 fix). BigQuery rejects duplicate job IDs, making rate limit retries safe.
 
-### 7. Same file loaded multiple times (8–9x)
+### 7. Same file loaded multiple times (8–9x) ✓ Resolved
 **Symptom**: One uploaded file triggered 8–9 function invocations, each successfully loading the same data.  
 **Cause**: Eventarc uses Pub/Sub internally (at-least-once delivery). Pub/Sub sends the same message multiple times if it doesn't receive an acknowledgement within the deadline. Even when the function returns HTTP 200, the ack can be lost or delayed due to network issues, causing redelivery.  
 **Failed attempts**:
