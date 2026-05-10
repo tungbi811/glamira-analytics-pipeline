@@ -1,11 +1,15 @@
-import os
 import functions_framework
 from google.cloud import bigquery
 
-PROJECT = os.environ.get("GCP_PROJECT", "project-07d9073d-6ad1-4f38-99e")
-DATASET = os.environ.get("BQ_DATASET", "glamira_raw")
+PROJECT = "project-07d9073d-6ad1-4f38-99e"
+DATASET = "glamira_raw"
 
-SUMMARY_PREFIX = "glamira-data/processed/summary/"
+# Maps GCS path prefix to (BigQuery table, use_schema)
+COLLECTION_MAP = {
+    "glamira-data/processed/summary/":         ("summary",        True),
+    "glamira-data/processed/ip_locations/":    ("ip_locations",   False),
+    "glamira-data/processed/product_details/": ("product_details",False),
+}
 
 # Embedded schema for summary table — avoids needing to upload raw_events.json alongside the function
 SUMMARY_SCHEMA = [
@@ -67,20 +71,35 @@ def trigger_bigquery_load(cloud_event):
     bucket    = data["bucket"]
     file_name = data["name"]
 
-    if not (file_name.startswith(SUMMARY_PREFIX) and file_name.endswith(".jsonl")):
-        print(f"Skipping {file_name} — not a summary file")
+    table_id   = None
+    use_schema = False
+
+    for prefix, (table, schema) in COLLECTION_MAP.items():
+        if file_name.startswith(prefix) and file_name.endswith(".jsonl"):
+            table_id   = table
+            use_schema = schema
+            break
+
+    if not table_id:
+        print(f"Skipping {file_name} — no matching collection")
         return
 
-    client     = bigquery.Client()
-    table_ref  = f"{PROJECT}.{DATASET}.summary"
+    client = bigquery.Client()
+    client.create_dataset(f"{PROJECT}.{DATASET}", exists_ok=True)
+
+    table_ref  = f"{PROJECT}.{DATASET}.{table_id}"
     source_uri = f"gs://{bucket}/{file_name}"
 
     job_config = bigquery.LoadJobConfig(
         source_format         = bigquery.SourceFormat.NEWLINE_DELIMITED_JSON,
         write_disposition     = bigquery.WriteDisposition.WRITE_APPEND,
         ignore_unknown_values = True,
-        schema                = SUMMARY_SCHEMA,
     )
+
+    if use_schema:
+        job_config.schema = SUMMARY_SCHEMA
+    else:
+        job_config.autodetect = True
 
     print(f"Loading {source_uri} → {table_ref}")
     job = client.load_table_from_uri(source_uri, table_ref, job_config=job_config)
