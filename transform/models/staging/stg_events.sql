@@ -1,3 +1,5 @@
+{{ config(materialized='table') }}
+
 SELECT
     _id AS event_id,
     store_id,

@@ -77,3 +77,74 @@ job = client.load_table_from_uri(source_uri, table_ref, job_config=job_config, j
 **Symptom**: Function continues inserting data after `export_to_gcs.py` completes.  
 **Cause**: Eventarc/Pub/Sub queues undelivered events and keeps retrying them indefinitely, even after the export has stopped.  
 **Fix**: Delete the Cloud Function or set max instances to 0 to immediately stop all invocations. With the job ID fix (problem #7), redelivered events are safely skipped so this is no longer a data integrity issue.
+
+---
+
+## Code Review Findings (2026-05-11)
+
+Issues identified during code review. Items marked ✓ are fixed.
+
+### 9. Hardcoded GCP project ID ✓ Resolved
+**File**: `load/02_cloud_functions/main.py`  
+**Cause**: `PROJECT` and `DATASET` were hardcoded strings; project ID value was also malformed (truncated UUID).  
+**Fix**: Replaced with `os.environ["GCP_PROJECT"]` and `os.environ.get("BQ_DATASET", "glamira_raw")`. Values now live in `.env` and must be set as Cloud Function runtime env vars at deploy time.
+
+### 10. Non-idempotent Mongo export resume
+**File**: `load/01_mongo_to_gcs/export_to_gcs.py:139-176`  
+**Cause**: Resume logic uses `cursor.skip(completed_batches * BATCH_SIZE)` on a `find()` with no `.sort()`. MongoDB cursors without an explicit sort have no stable order — resuming after a partial run can silently skip or duplicate documents. `.skip()` is also O(N) server-side.  
+**Fix**: Add `.sort("_id", 1)` and resume using the last seen `_id` with a range filter (`{"_id": {"$gt": last_id}}`).
+
+### 11. TLS verification disabled globally
+**File**: `ingest/03_product_crawler/crawl_product_details.py:89`  
+**Cause**: `verify=False` passed to every request, not just specific regional domains as the comment implies. Exposes all crawl traffic to MITM and silently masks certificate errors.  
+**Fix**: Remove `verify=False` or pin per-domain if a specific cert issue exists.
+
+### 12. `dim_locations` duplicate surrogate key
+**File**: `transform/models/marts/dimensions/dim_locations.sql`  
+**Cause**: Surrogate key is built from `ip_address` only, but `GROUP BY` includes 5 columns. Any IP that appears with varying country/city values produces duplicate `location_key` rows, causing fan-out in `fact_sales_order`.  
+**Fix**: Either group only on `ip_address` (pick one row with `QUALIFY ROW_NUMBER() = 1`) or build the surrogate key from all five columns.
+
+### 13. `dim_customers` duplicate key on multi-email customers
+**File**: `transform/models/marts/dimensions/dim_customers.sql`  
+**Cause**: `GROUP BY customer_id, email_address` creates one row per (customer_id, email) pair. A customer with two recorded emails produces duplicate `customer_key` values. `fact_sales_order` joins on `customer_id` and fans out.  
+**Fix**: Deduplicate to one row per `customer_id` (e.g., pick the most recent email with `QUALIFY ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY ...) = 1`).
+
+### 14. `dim_products` unaggregated + cross-type JOIN
+**File**: `transform/models/marts/dimensions/dim_products.sql`, `transform/models/marts/facts/fact_sales_order.sql:24`  
+**Cause**: `dim_products` has no DISTINCT/aggregation — any duplicate `product_id` in the source fans out the fact. The join uses `CAST(cp.product_id AS INT64) = p.product_id`, silently dropping non-numeric product IDs.  
+**Fix**: Add `QUALIFY ROW_NUMBER() OVER (PARTITION BY product_id ORDER BY ...) = 1` to `dim_products`. Keep `product_id` as STRING throughout and join on STRING.
+
+### 15. Zero dbt tests and no source freshness
+**Files**: `transform/models/staging/sources.yml`, all model directories  
+**Cause**: No `schema.yml` files exist for any models, and `sources.yml` has no `loaded_at_field` or `freshness` config. Duplicate keys and broken joins (issues #12–14) would be caught immediately by basic `unique` + `not_null` tests.  
+**Fix**: Add `schema.yml` to each model layer with at minimum `unique` + `not_null` tests on every surrogate key and `event_id`. Add `loaded_at_field: time_stamp` and `freshness` thresholds to `sources.yml`.
+
+### 16. `time_stamp` cast repeated across models
+**Files**: `load/02_cloud_functions/main.py:25`, `dim_date.sql`, `fact_sales_order.sql`  
+**Cause**: `time_stamp` is stored as STRING in BigQuery and cast to INT64/TIMESTAMP in every consuming model.  
+**Fix**: Cast once in `stg_events` as `TIMESTAMP_SECONDS(CAST(time_stamp AS INT64)) AS event_at` and use `event_at` everywhere downstream.
+
+### 17. No partitioning or clustering on `fact_sales_order`
+**File**: `transform/dbt_project.yml:26-32`  
+**Cause**: 41M-row fact table is materialized as a plain table with no `partition_by` or `cluster_by`, making every query a full scan.  
+**Fix**: Add `partition_by={"field": "event_date", "data_type": "date"}` and `cluster_by=["customer_key", "product_key"]` to the model config.
+
+### 18. `stg_events` rescanned on every mart build ✓ Resolved
+**File**: `transform/models/staging/stg_events.sql`  
+**Cause**: Staging layer defaulted to `view`; every downstream mart re-ran the full 41M-row source scan.  
+**Fix**: Added `{{ config(materialized='table') }}` to `stg_events.sql` so the source is scanned once.
+
+### 19. `lookup_ip_locations.py` drops output collection on every run
+**File**: `ingest/02_ip_geolocation/lookup_ip_locations.py:23`  
+**Cause**: `out_col.drop()` runs unconditionally, destroying all data if the script is rerun or interrupted.  
+**Fix**: Remove the drop and use upserts keyed by `ip` (`update_one({"ip": doc["ip"]}, {"$set": doc}, upsert=True)`).
+
+### 20. Shell-out to `gcloud storage` instead of Python SDK
+**File**: `load/01_mongo_to_gcs/export_to_gcs.py:117,165`  
+**Cause**: Uses `subprocess` to call the `gcloud` CLI for GCS uploads, which requires the CLI to be installed and authenticated on the host, and makes error handling harder.  
+**Fix**: Replace with `google-cloud-storage` Python client (`storage.Client().bucket(...).blob(...).upload_from_filename(...)`).
+
+### 21. `dim_date` derived from event timestamps only
+**File**: `transform/models/marts/dimensions/dim_date.sql`  
+**Cause**: Date spine is built from the range of `event_at` values in the data. Any gap in events produces a gap in the date dimension, breaking date-range queries.  
+**Fix**: Use `GENERATE_DATE_ARRAY(DATE '2020-01-01', CURRENT_DATE())` to produce a complete, stable date spine.

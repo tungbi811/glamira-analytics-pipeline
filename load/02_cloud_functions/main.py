@@ -1,9 +1,10 @@
+import os
 import time
 import functions_framework
 from google.cloud import bigquery
 
-PROJECT = "project-07d9073d-6ad1-4f38-99e"
-DATASET = "glamira_raw"
+PROJECT = os.environ["GCP_PROJECT"]
+DATASET = os.environ.get("BQ_DATASET", "glamira_raw")
 
 # Maps GCS path prefix to (BigQuery table, use_schema)
 COLLECTION_MAP = {
@@ -87,7 +88,7 @@ def trigger_bigquery_load(cloud_event):
 
     client = bigquery.Client()
     dataset = bigquery.Dataset(f"{PROJECT}.{DATASET}")
-    dataset.location = "australia-southeast1"
+    dataset.location = os.environ.get("BQ_LOCATION", "australia-southeast1")
     client.create_dataset(dataset, exists_ok=True)
 
     table_ref = f"{PROJECT}.{DATASET}.{table_id}"
