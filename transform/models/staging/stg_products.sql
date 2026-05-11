@@ -15,4 +15,4 @@ SELECT
     store_code,
     catalog_url
 FROM 
-    {{ source('glamira_raw', 'product_detail') }}
+    {{ source('glamira_raw', 'product_details') }}
