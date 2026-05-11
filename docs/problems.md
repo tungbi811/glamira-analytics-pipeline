@@ -37,9 +37,25 @@
 **Failed attempts**:
 - Setting max instances to 1 — did not fully resolve, trigger still queued invocations faster than BigQuery could process
 - Switching to Cloud Audit Log trigger — natural delivery delay helped but caused `KeyError: 'bucket'` (problem #5)
-- Adding exponential backoff retry loop — caused more duplicate loads when combined with Pub/Sub retries  
+- Adding exponential backoff retry loop without job ID — caused more duplicate loads when combined with Pub/Sub retries  
 
-**Fix**: Use a unique BigQuery **job ID** derived from the filename (see problem #7 fix). BigQuery rejects duplicate job IDs, making rate limit retries safe.
+**Fix**: First apply the filename-based job ID (problem #7). Once idempotent, add an internal retry loop only for 429 errors — retrying the same job ID is safe because BigQuery will either complete it or return `Already Exists`. Retries for all other errors are skipped since they are permanent failures (schema mismatch, permission denied, etc.) that won't succeed on retry.
+
+```python
+for attempt in range(4):
+    try:
+        job = client.load_table_from_uri(source_uri, table_ref, job_config=job_config, job_id=job_id)
+        job.result()
+        return
+    except Exception as e:
+        if "Already Exists" in str(e):
+            return
+        if "429" in str(e) and attempt < 3:
+            wait = 15 * (2 ** attempt)  # 15s, 30s, 60s
+            time.sleep(wait)
+        else:
+            raise e
+```
 
 ### 7. Same file loaded multiple times (8–9x) ✓ Resolved
 **Symptom**: One uploaded file triggered 8–9 function invocations, each successfully loading the same data.  

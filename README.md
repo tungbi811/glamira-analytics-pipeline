@@ -25,7 +25,7 @@ glamira-data-pipeline/
 ├── docs/                  # Architecture diagram, data dictionary, setup guides
 ├── ingestion/             # Phase 1 — MongoDB load, IP geolocation, product crawler
 ├── pipeline/              # Phase 2 — Mongo→GCS export, Cloud Functions, BQ schemas
-├── dbt_glamira/           # Phase 3 — dbt project (staging + marts)
+├── dbt/                   # Phase 3 — dbt project (staging + marts)
 ├── dashboards/            # Looker LookML and dashboard screenshots
 └── notebooks/             # Exploratory data profiling
 ```
