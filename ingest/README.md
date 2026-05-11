@@ -22,7 +22,7 @@ Prepares raw Glamira UBL data for the analytics pipeline. Run steps in order.
 ## Step 1 — MongoDB Import
 
 ```bash
-bash ingestion/01_mongodb_import/import_data.sh
+bash ingest/01_mongodb_import/import_data.sh
 ```
 
 See `01_mongodb_import/README.md` for details.
@@ -35,10 +35,10 @@ Extract 3,239,628 unique IPs into a separate collection, then enrich with countr
 
 ```bash
 # Extract unique IPs from summary into unique_ips collection
-./ingestion/mongo.sh ingestion/02_ip_geolocation/extract_unique_ips.js
+./ingest/mongo.sh ingest/02_ip_geolocation/extract_unique_ips.js
 
 # Enrich with location data → writes to ip_locations collection
-nohup uv run python ingestion/02_ip_geolocation/lookup_ip_locations.py > logs/lookup_ip.log 2>&1 &
+nohup uv run python ingest/02_ip_geolocation/lookup_ip_locations.py > logs/lookup_ip.log 2>&1 &
 tail -f logs/lookup_ip.log
 ```
 
@@ -50,11 +50,11 @@ Extract 19,418 unique product URLs, then crawl each for product details. 18,987 
 
 ```bash
 # Extract unique product URLs → writes to product_urls collection
-./ingestion/mongo.sh ingestion/03_product_crawler/extract_product_urls.js
+./ingest/mongo.sh ingest/03_product_crawler/extract_product_urls.js
 
 # Crawl product details → writes to product_details collection
 # Resumable: re-running skips already crawled products
-nohup uv run python ingestion/03_product_crawler/crawl_product_details.py > logs/crawl.log 2>&1 &
+nohup uv run python ingest/03_product_crawler/crawl_product_details.py > logs/crawl.log 2>&1 &
 tail -f logs/crawl.log
 ```
 
@@ -62,8 +62,8 @@ tail -f logs/crawl.log
 
 ## Running mongo.sh scripts
 
-`ingestion/mongo.sh` connects to the MongoDB host defined by `VM_EXTERNAL_IP` in `.env`:
+`ingest/mongo.sh` connects to the MongoDB host defined by `VM_EXTERNAL_IP` in `.env`:
 
 ```bash
-./ingestion/mongo.sh <path-to-script.js>
+./ingest/mongo.sh <path-to-script.js>
 ```

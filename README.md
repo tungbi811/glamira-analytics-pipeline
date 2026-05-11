@@ -22,12 +22,10 @@ The pipeline is split into three phases:
 
 ```
 glamira-data-pipeline/
-├── docs/                  # Architecture diagram, data dictionary, setup guides
-├── ingestion/             # Phase 1 — MongoDB load, IP geolocation, product crawler
-├── pipeline/              # Phase 2 — Mongo→GCS export, Cloud Functions, BQ schemas
-├── dbt/                   # Phase 3 — dbt project (staging + marts)
-├── dashboards/            # Looker LookML and dashboard screenshots
-└── notebooks/             # Exploratory data profiling
+├── docs/        # Architecture diagram, data dictionary, setup guides
+├── ingest/      # Phase 1 — MongoDB load, IP geolocation, product crawler
+├── load/        # Phase 2 — Mongo→GCS export, Cloud Functions, BQ schemas
+└── transform/   # Phase 3 — dbt project (staging + marts)
 ```
 
 Each subfolder has its own README with run instructions specific to that step.
