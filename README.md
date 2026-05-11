@@ -8,7 +8,7 @@ End-to-end data engineering project that ingests ~41M raw user-event records fro
 
 ## 📐 Architecture
 
-![Architecture diagram](docs/architecture.svg)
+![Architecture diagram](images/architecture.svg)
 
 The pipeline is split into three phases:
 
