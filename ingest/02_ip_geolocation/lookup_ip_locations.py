@@ -1,0 +1,61 @@
+import IP2Location
+import pymongo
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from config import (
+    MONGO_URI, DB_NAME,
+    UNIQUE_IP_COLLECTION,
+    IP_OUTPUT_COLLECTION as OUTPUT_COLLECTION,
+    IP2LOCATION_BIN_PATH as BIN_PATH,
+    BATCH_SIZE,
+)
+
+if __name__ == "__main__":
+    client = pymongo.MongoClient(MONGO_URI)
+    db = client[DB_NAME]
+    ip2loc = IP2Location.IP2Location(BIN_PATH)
+
+    total = db[UNIQUE_IP_COLLECTION].count_documents({})
+    print(f"Total unique IPs: {total:,}")
+
+    out_col = db[OUTPUT_COLLECTION]
+    out_col.drop()
+
+    processed = 0
+    errors = 0
+    batch = []
+
+    cursor = db[UNIQUE_IP_COLLECTION].find({}, {"_id": 0, "ip": 1}).batch_size(BATCH_SIZE)
+
+    for doc in cursor:
+        ip = doc.get("ip", "")
+        if not ip or ip == "-":
+            errors += 1
+            continue
+
+        try:
+            rec = ip2loc.get_all(ip)
+            batch.append({
+                "ip":           ip,
+                "country_code": rec.country_short,
+                "country_name": rec.country_long,
+                "region":       rec.region,
+                "city":         rec.city,
+            })
+        except Exception:
+            errors += 1
+            continue
+
+        if len(batch) >= BATCH_SIZE:
+            out_col.insert_many(batch)
+            processed += len(batch)
+            batch = []
+            print(f"  Processed {processed:,} / {total:,}")
+
+    if batch:
+        out_col.insert_many(batch)
+        processed += len(batch)
+
+    print(f"Done! Processed {processed:,}, errors {errors:,}")
+    client.close()

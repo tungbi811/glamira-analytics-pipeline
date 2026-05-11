@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: glamira_raw
+    database: "{{ target.project }}"
+    schema: glamira_raw
+    tables:
+      - name: summary
+      - name: ip_locations
+      - name: product_detail

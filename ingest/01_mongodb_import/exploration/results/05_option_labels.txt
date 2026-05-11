@@ -1,0 +1,18 @@
+--- option field type distribution ---
+array: 22208495
+object: 12092054
+missing: 7131924
+
+--- option_label values (standard array format) ---
+alloy: 15680272
+diamond: 14530159
+stone/diamonds: 1822135
+stone2: 794329
+stone 2: 156856
+stone3: 151716
+damenring steinbesatz: 119381
+pear: 107512
+stonetow: 77495
+stone 3: 23825
+herrenring steinbesatz: 85
+stone 4: 2

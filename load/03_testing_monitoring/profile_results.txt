@@ -1,0 +1,64 @@
+\n=== Row counts ===
++-----------------+-----------+
+|   table_name    | row_count |
++-----------------+-----------+
+| product_details |     18987 |
+| ip_locations    |   3239628 |
+| summary         |  41432473 |
++-----------------+-----------+
+\n=== Summary NULL counts ===
++---------+---------------+---------+-----------------+-----------------+-----------------+
+| null_id | null_store_id | null_ip | null_collection | null_time_stamp | null_product_id |
++---------+---------------+---------+-----------------+-----------------+-----------------+
+|       0 |             0 |       0 |               0 |               0 |        19189753 |
++---------+---------------+---------+-----------------+-----------------+-----------------+
+\n=== Summary distinct values ===
++-----------------+----------------------+--------------+------------------+
+| distinct_stores | distinct_collections | distinct_ips | distinct_devices |
++-----------------+----------------------+--------------+------------------+
+|              86 |                   27 |      3239628 |          7691556 |
++-----------------+----------------------+--------------+------------------+
+\n=== Event distribution ===
++---------------------------------------+-------------+
+|              collection               | event_count |
++---------------------------------------+-------------+
+| view_listing_page                     |    11259694 |
+| view_product_detail                   |    10944427 |
+| select_product_option                 |     8844342 |
+| select_product_option_quality         |     2231825 |
+| view_static_page                      |     1451565 |
+| view_landing_page                     |     1434230 |
+| product_detail_recommendation_visible |     1302362 |
+| view_home_page                        |     1053420 |
+| listing_page_recommendation_visible   |      718048 |
+| product_detail_recommendation_noticed |      490780 |
+| view_shopping_cart                    |      343077 |
+| landing_page_recommendation_visible   |      314999 |
+| search_box_action                     |      238308 |
+| add_to_cart_action                    |      187901 |
+| product_detail_recommendation_clicked |      179228 |
+| view_my_account                       |      112066 |
+| checkout                              |       88540 |
+| landing_page_recommendation_noticed   |       58186 |
+| listing_page_recommendation_noticed   |       39819 |
+| view_all_recommend                    |       33664 |
+| checkout_success                      |       26079 |
+| listing_page_recommendation_clicked   |       25545 |
+| landing_page_recommendation_clicked   |       20128 |
+| product_view_all_recommend_clicked    |       16682 |
+| view_sorting_relevance                |       15284 |
+| sorting_relevance_click_action        |        1713 |
+| back_to_product_action                |         561 |
++---------------------------------------+-------------+
+\n=== ip_locations profiling ===
++------------+--------------+--------------------+--------------+
+| total_rows | distinct_ips | distinct_countries | null_country |
++------------+--------------+--------------------+--------------+
+|    3239628 |      3239628 |                222 |            0 |
++------------+--------------+--------------------+--------------+
+\n=== product_details profiling ===
++------------+-------------------+---------------------+--------------+
+| total_rows | distinct_products | distinct_categories | missing_name |
++------------+-------------------+---------------------+--------------+
+|      18987 |             18986 |                  47 |            0 |
++------------+-------------------+---------------------+--------------+
