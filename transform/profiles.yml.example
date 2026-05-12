@@ -1,0 +1,22 @@
+transform:
+  outputs:
+    dev:
+      # BigQuery project that contains the glamira_raw source dataset.
+      project: "{{ env_var('GCP_PROJECT', 'your-project-id') }}"
+
+      # dbt's default dataset. Model schemas are customized in dbt_project.yml.
+      dataset: "{{ env_var('DBT_DATASET', 'glamira') }}"
+
+      # Use oauth for local development after running:
+      #   gcloud auth application-default login
+      method: oauth
+
+      # Keep this aligned with your BigQuery dataset location.
+      location: "{{ env_var('BQ_LOCATION', 'australia-southeast1') }}"
+
+      type: bigquery
+      threads: 4
+      job_execution_timeout_seconds: 300
+      job_retries: 1
+      priority: interactive
+  target: dev
