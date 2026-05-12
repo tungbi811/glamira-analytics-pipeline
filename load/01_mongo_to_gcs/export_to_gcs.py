@@ -4,13 +4,26 @@ import time
 import subprocess
 import sys
 import pymongo
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from config import (
-    MONGO_URI, DB_NAME, BATCH_SIZE,
-    SUMMARY_COLLECTION,        SUMMARY_OUTPUT_DIR,  GCS_SUMMARY_PATH,
-    IP_OUTPUT_COLLECTION,      IP_OUTPUT_DIR,       GCS_IP_PATH,
-    PRODUCT_OUTPUT_COLLECTION, PRODUCT_OUTPUT_DIR,  GCS_PRODUCT_PATH,
-)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+from utils import load_dotenv, path_env, required_env
+
+load_dotenv()
+
+MONGO_URI = required_env("MONGO_URI")
+DB_NAME = required_env("DB_NAME")
+BATCH_SIZE = int(required_env("BATCH_SIZE"))
+
+SUMMARY_COLLECTION = required_env("SUMMARY_COLLECTION")
+IP_OUTPUT_COLLECTION = required_env("IP_OUTPUT_COLLECTION")
+PRODUCT_OUTPUT_COLLECTION = required_env("PRODUCT_OUTPUT_COLLECTION")
+
+SUMMARY_OUTPUT_DIR = path_env("SUMMARY_OUTPUT_DIR")
+IP_OUTPUT_DIR = path_env("IP_OUTPUT_DIR")
+PRODUCT_OUTPUT_DIR = path_env("PRODUCT_OUTPUT_DIR")
+
+GCS_SUMMARY_PATH = required_env("GCS_SUMMARY_PATH")
+GCS_IP_PATH = required_env("GCS_IP_PATH")
+GCS_PRODUCT_PATH = required_env("GCS_PRODUCT_PATH")
 
 # BigQuery REPEATED RECORD fields must always be arrays — even when absent in MongoDB
 SUMMARY_ARRAY_FIELDS = ["option", "cart_products"]

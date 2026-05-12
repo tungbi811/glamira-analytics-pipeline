@@ -45,14 +45,18 @@ cp .env.example .env
 Edit `.env` with your values:
 
 ```env
+VM_EXTERNAL_IP=localhost
 MONGO_URI=mongodb://localhost:27017
 DB_NAME=countly
-DATA_DIR=/home/<your-user>/glamira_unigap/data
+DATA_DIR=data
+LOGS_DIR=logs
 GCS_SUMMARY_PATH=gs://unigap/glamira-data/processed/summary/
-IP2LOCATION_BIN_PATH=/home/<your-user>/glamira_unigap/data/raw/ip_country_region_city.bin
+GCS_IP_PATH=gs://unigap/glamira-data/processed/ip_locations/
+GCS_PRODUCT_PATH=gs://unigap/glamira-data/processed/product_details/
+IP2LOCATION_BIN_PATH=data/raw/ip2location.bin
 ```
 
-> The ingestion scripts read these values via `ingestion/config.py`. Any variable not set falls back to a sensible default.
+> The Python scripts load values from the project-root `.env` via `utils.py`. Required variables are listed in `.env.example`; missing values fail fast at startup.
 
 ---
 

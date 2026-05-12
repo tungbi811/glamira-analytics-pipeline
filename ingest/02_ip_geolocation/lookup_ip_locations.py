@@ -2,14 +2,17 @@ import IP2Location
 import pymongo
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from config import (
-    MONGO_URI, DB_NAME,
-    UNIQUE_IP_COLLECTION,
-    IP_OUTPUT_COLLECTION as OUTPUT_COLLECTION,
-    IP2LOCATION_BIN_PATH as BIN_PATH,
-    BATCH_SIZE,
-)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+from utils import load_dotenv, path_env, required_env
+
+load_dotenv()
+
+MONGO_URI = required_env("MONGO_URI")
+DB_NAME = required_env("DB_NAME")
+UNIQUE_IP_COLLECTION = required_env("UNIQUE_IP_COLLECTION")
+OUTPUT_COLLECTION = required_env("IP_OUTPUT_COLLECTION")
+BIN_PATH = path_env("IP2LOCATION_BIN_PATH")
+BATCH_SIZE = int(required_env("BATCH_SIZE"))
 
 if __name__ == "__main__":
     client = pymongo.MongoClient(MONGO_URI)

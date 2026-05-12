@@ -12,6 +12,7 @@ wheels/
 # Environment variables — never commit secrets or machine-specific config
 .env
 .env.*
+!.env.example
 
 # Data files — too large and machine-specific for version control
 data/

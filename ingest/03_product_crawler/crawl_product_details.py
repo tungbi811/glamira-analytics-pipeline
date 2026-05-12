@@ -10,13 +10,16 @@ import logging
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Lock
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from config import (
-    MONGO_URI, DB_NAME,
-    PRODUCT_INPUT_COLLECTION  as INPUT_COLLECTION,
-    PRODUCT_OUTPUT_COLLECTION as OUTPUT_COLLECTION,
-    PRODUCT_LOG_FILE          as LOG_FILE,
-)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+from utils import load_dotenv, path_env, required_env
+
+load_dotenv()
+
+MONGO_URI = required_env("MONGO_URI")
+DB_NAME = required_env("DB_NAME")
+INPUT_COLLECTION = required_env("PRODUCT_INPUT_COLLECTION")
+OUTPUT_COLLECTION = required_env("PRODUCT_OUTPUT_COLLECTION")
+LOG_FILE = path_env("PRODUCT_LOG_FILE")
 
 # Progressive backoff rounds — later rounds are slower with fewer workers to avoid rate limiting
 ROUNDS = [

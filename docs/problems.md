@@ -12,10 +12,10 @@
 **Cause**: `$addToSet: "$fields.v"` on 41M documents exceeded MongoDB's 100MB aggregation memory limit.  
 **Fix**: Removed `unique_values` / `unique_count` fields from the aggregation. Replaced with `not_null_count` which doesn't accumulate values in memory.
 
-### 3. export_to_gcs.py could not find config.py
+### 3. export_to_gcs.py could not find shared environment loader
 **Symptom**: `ModuleNotFoundError: No module named 'config'`  
-**Cause**: `sys.path.insert` was pointing to the wrong directory — `pipeline/` had no `config.py`.  
-**Fix**: Created an independent `pipeline/config.py` so the relative `..` path resolves correctly from `pipeline/01_mongo_to_gcs/`.
+**Cause**: `sys.path.insert` was pointing to the wrong directory, so the export script could not import shared configuration code.  
+**Fix**: Removed the `config.py` modules and moved shared `.env` loading helpers into project-root `utils.py`, imported via an explicit project-root path.
 
 ---
 
