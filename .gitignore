@@ -29,3 +29,10 @@ dbt/logs/
 dbt/dbt_packages/
 profiles.yml
 .user.yml
+
+.DS_Store
+.playwright-mcp/
+*.tfvars
+.terraform/
+*.tfstate
+*.tfstate.*

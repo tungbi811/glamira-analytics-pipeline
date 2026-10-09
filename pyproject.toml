@@ -1,15 +1,7 @@
 [project]
-name = "glamira-unigap"
+name = "glamira"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = [
-    "beautifulsoup4>=4.14.3",
-    "curl-cffi>=0.15.0",
-    "agate==1.7.1",
-    "dbt-bigquery>=1.11.1",
-    "dbt-core>=1.11.9",
-    "ip2location>=8.11.0",
-    "pymongo>=4.17.0",
-]
+dependencies = []
