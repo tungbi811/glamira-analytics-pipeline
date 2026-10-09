@@ -1,0 +1,37 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e5]:
+    - generic [ref=e7]:
+      - link "Skip to content" [ref=e9] [cursor=pointer]:
+        - /url: "#main"
+      - generic [ref=e14]:
+        - banner [ref=e15]
+        - main [ref=e17]:
+          - generic [ref=e22]:
+            - generic [ref=e25]:
+              - img "Page icon" [ref=e30]: 🧠
+              - heading "Glamira E-commerce Analytics Pipeline Project" [level=1] [ref=e35]
+            - generic [ref=e37]:
+              - 'link "🍤 Project 05: Data Collection & Storage Foundation" [ref=e41] [cursor=pointer]':
+                - /url: /Project-05-Data-Collection-Storage-Foundation-fd50b5b264a04576b0def7c0ba1f48af?pvs=25
+                - generic [ref=e44]:
+                  - generic [ref=e45]: 🍤
+                  - generic [ref=e49]: "Project 05: Data Collection & Storage Foundation"
+              - 'link "🥧 Project 06: Data Pipeline & Storage" [ref=e54] [cursor=pointer]':
+                - /url: /Project-06-Data-Pipeline-Storage-a36cf22baa9e4628bddfaab513011eef?pvs=25
+                - generic [ref=e57]:
+                  - generic [ref=e58]: 🥧
+                  - generic [ref=e62]: "Project 06: Data Pipeline & Storage"
+              - 'link "🚂 Project 07: Data Transformation & Visualization" [ref=e67] [cursor=pointer]':
+                - /url: /Project-07-Data-Transformation-Visualization-d069859fe2d742a8a41cdac670a84c05?pvs=25
+                - generic [ref=e70]:
+                  - generic [ref=e71]: 🚂
+                  - generic [ref=e75]: "Project 07: Data Transformation & Visualization"
+              - figure [ref=e92]
+              - link "🏎️ dbt Set up" [ref=e101] [cursor=pointer]:
+                - /url: /dbt-Set-up-3c1878cd1adb80b69b1ad11ea3e46a13?pvs=25
+                - generic [ref=e104]:
+                  - generic [ref=e105]: 🏎️
+                  - generic [ref=e109]: dbt Set up
+    - status [ref=e112]
+    - alert [ref=e113]
+  - iframe [aria-hidden] [ref=e114]

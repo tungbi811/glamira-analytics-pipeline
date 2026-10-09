@@ -24,12 +24,10 @@ models:
       +materialized: ephemeral
       +schema: glamira_intermediate
     marts:
+      +materialized: table
+      +schema: glamira_marts
       dimensions:
-        +materialized: table
-        +schema: glamira_marts
       facts:
-        +materialized: table
-        +schema: glamira_marts
 
 seeds:
   transform:

@@ -7,6 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "beautifulsoup4>=4.14.3",
     "curl-cffi>=0.15.0",
+    "agate==1.7.1",
     "dbt-bigquery>=1.11.1",
     "dbt-core>=1.11.9",
     "ip2location>=8.11.0",

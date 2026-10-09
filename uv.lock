@@ -9,7 +9,7 @@ resolution-markers = [
 
 [[package]]
 name = "agate"
-version = "1.9.1"
+version = "1.7.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "babel" },
@@ -18,11 +18,10 @@ dependencies = [
     { name = "parsedatetime" },
     { name = "python-slugify" },
     { name = "pytimeparse" },
-    { name = "tzdata", marker = "sys_platform == 'win32'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/29/77/6f5df1c68bf056f5fdefc60ccc616303c6211e71cd6033c830c12735f605/agate-1.9.1.tar.gz", hash = "sha256:bc60880c2ee59636a2a80cd8603d63f995be64526abf3cbba12f00767bcd5b3d", size = 202303, upload-time = "2023-12-21T20:05:24.316Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/07/12/c95569f05a85164e14ba13f974dca942a75b727bedab3925f2a29e175589/agate-1.7.1.tar.gz", hash = "sha256:eadf46d980168b8922d5d396d6258eecd5e7dbef7e6f0c0b71e968545ea96389", size = 202018, upload-time = "2023-01-04T20:12:21.769Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d1/53/89b197cb472a3175d73384761a3413fd58e6b65a794c1102d148b8de87bd/agate-1.9.1-py2.py3-none-any.whl", hash = "sha256:1cf329510b3dde07c4ad1740b7587c9c679abc3dcd92bb1107eabc10c2e03c50", size = 95085, upload-time = "2023-12-21T20:05:21.954Z" },
+    { url = "https://files.pythonhosted.org/packages/20/6e/bbebad0213fce2081902cf7565322b42a5a991c550857cfbb4741f69b8f6/agate-1.7.1-py2.py3-none-any.whl", hash = "sha256:23f9f412f74f97b72f82b1525ab235cc816bc8c8525d968a091576a0dbc54a5f", size = 97149, upload-time = "2023-01-04T20:12:20.268Z" },
 ]
 
 [[package]]
@@ -552,6 +551,7 @@ name = "glamira-unigap"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "agate" },
     { name = "beautifulsoup4" },
     { name = "curl-cffi" },
     { name = "dbt-bigquery" },
@@ -562,6 +562,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "agate", specifier = "==1.7.1" },
     { name = "beautifulsoup4", specifier = ">=4.14.3" },
     { name = "curl-cffi", specifier = ">=0.15.0" },
     { name = "dbt-bigquery", specifier = ">=1.11.1" },

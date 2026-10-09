@@ -1,0 +1,210 @@
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e4]:
+    - generic [ref=f2e6]:
+      - link "Skip to content" [ref=f2e8] [cursor=pointer]:
+        - /url: "#main"
+      - generic [ref=f2e13]:
+        - banner [ref=f2e14]:
+          - generic [ref=f2e16]:
+            - generic [ref=f2e17]:
+              - link "🧠 Glamira E-commerce Analytics Pipeline Project" [ref=f2e19] [cursor=pointer]:
+                - /url: /Glamira-E-commerce-Analytics-Pipeline-Project-74bfb35749014a9398efed35c8a2fdc9?pvs=18
+                - generic [ref=f2e20]:
+                  - generic [ref=f2e21]: 🧠
+                  - generic [ref=f2e24]: Glamira E-commerce Analytics Pipeline Project
+              - 'button "🍤 Project 05: Data Collection & Storage Foundation" [disabled] [ref=f2e29]':
+                - generic [ref=f2e30]: 🍤
+                - generic [ref=f2e33]: "Project 05: Data Collection & Storage Foundation"
+            - generic [ref=f2e35]:
+              - button "Close panel" [ref=f2e37] [cursor=pointer]
+              - generic [ref=f2e41]:
+                - button [ref=f2e42] [cursor=pointer]
+                - button "Share site to socials" [ref=f2e47] [cursor=pointer]
+                - button [ref=f2e52] [cursor=pointer]
+                - button "More actions" [ref=f2e56] [cursor=pointer]
+                - button "Get Notion free" [ref=f2e59] [cursor=pointer]
+        - main [ref=f2e60]:
+          - generic [ref=f2e65]:
+            - generic [ref=f2e83]:
+              - img "Page icon" [ref=f2e88]: 🍤
+              - 'heading "Project 05: Data Collection & Storage Foundation" [level=1] [ref=f2e93]'
+            - generic [ref=f2e95]:
+              - generic [ref=f2e96]: "Focus: Setting up infrastructure and understanding data"
+              - heading "Learning Objectives:" [level=4] [ref=f2e106]
+              - generic [ref=f2e110]:
+                - generic [ref=f2e111]: •
+                - generic [ref=f2e113]: Understanding cloud infrastructure setup
+              - generic [ref=f2e119]:
+                - generic [ref=f2e120]: •
+                - generic [ref=f2e122]: Working with MongoDB
+              - generic [ref=f2e128]:
+                - generic [ref=f2e129]: •
+                - generic [ref=f2e131]: Basic data processing with Python
+              - generic [ref=f2e137]:
+                - generic [ref=f2e138]: •
+                - generic [ref=f2e140]: IP geolocation concepts
+              - heading "Detailed Steps:" [level=4] [ref=f2e147]
+              - generic [ref=f2e151]:
+                - generic [ref=f2e152]: "1."
+                - generic [ref=f2e154]:
+                  - generic [ref=f2e155]: Environment Setup (2 hours)
+                  - generic [ref=f2e160]:
+                    - generic [ref=f2e161]: •
+                    - generic [ref=f2e163]: Create GCP account and project
+                  - generic [ref=f2e169]:
+                    - generic [ref=f2e170]: •
+                    - generic [ref=f2e172]: Learn basic GCP concepts
+                  - generic [ref=f2e178]:
+                    - generic [ref=f2e179]: •
+                    - generic [ref=f2e181]: Download Glamira dataset
+              - generic [ref=f2e187]:
+                - generic [ref=f2e188]: "2."
+                - generic [ref=f2e190]:
+                  - generic [ref=f2e191]: GCS setup (1 hour)
+                  - generic [ref=f2e196]:
+                    - generic [ref=f2e197]: •
+                    - generic [ref=f2e199]: Create Google Cloud Storage bucket
+                  - generic [ref=f2e205]:
+                    - generic [ref=f2e206]: •
+                    - generic [ref=f2e208]: Learn about storage classes
+                  - generic [ref=f2e214]:
+                    - generic [ref=f2e215]: •
+                    - generic [ref=f2e217]: Set up authentication
+                  - generic [ref=f2e223]:
+                    - generic [ref=f2e224]: •
+                    - generic [ref=f2e226]: Test file uploads
+                  - generic [ref=f2e232]:
+                    - generic [ref=f2e233]: •
+                    - generic [ref=f2e235]: Upload raw data file to GCS in raw_… bucket
+              - generic [ref=f2e241]:
+                - generic [ref=f2e242]: "3."
+                - generic [ref=f2e244]:
+                  - generic [ref=f2e245]: Virtual Machine Setup (1 hours)
+                  - generic [ref=f2e250]:
+                    - generic [ref=f2e251]: •
+                    - generic [ref=f2e253]: Set up VM instance
+                  - generic [ref=f2e259]:
+                    - generic [ref=f2e260]: •
+                    - generic [ref=f2e262]: Install MongoDB on VM
+                  - generic [ref=f2e268]:
+                    - generic [ref=f2e269]: •
+                    - generic [ref=f2e271]: Set up Security policies ⭐
+                  - generic [ref=f2e277]:
+                    - generic [ref=f2e278]: •
+                    - generic [ref=f2e280]: Test connection
+              - generic [ref=f2e286]:
+                - generic [ref=f2e287]: "4."
+                - generic [ref=f2e289]:
+                  - generic [ref=f2e290]: Initial Data Loading (3 hours)
+                  - generic [ref=f2e295]:
+                    - generic [ref=f2e296]: •
+                    - generic [ref=f2e298]: Import raw data into MongoDB
+                  - generic [ref=f2e304]:
+                    - generic [ref=f2e305]: •
+                    - generic [ref=f2e307]: Basic MongoDB queries to explore data
+                  - generic [ref=f2e313]:
+                    - generic [ref=f2e314]: •
+                    - generic [ref=f2e316]: Document data structure (collections, fields)
+                  - generic [ref=f2e322]:
+                    - generic [ref=f2e323]: •
+                    - generic [ref=f2e327]:
+                      - text: Create
+                      - generic [ref=f2e328]: Data Dictionary ⭐
+              - generic [ref=f2e332]:
+                - generic [ref=f2e333]: "5."
+                - generic [ref=f2e335]:
+                  - generic [ref=f2e336]: IP Location Processing (2 hours)
+                  - generic [ref=f2e341]:
+                    - generic [ref=f2e342]: •
+                    - generic [ref=f2e346]:
+                      - text: Install
+                      - generic [ref=f2e347]: ip2location-python
+                      - text: library
+                  - generic [ref=f2e351]:
+                    - generic [ref=f2e352]: •
+                    - generic [ref=f2e354]:
+                      - generic [ref=f2e355]: "Write Python script to:"
+                      - figure [ref=f2e359]:
+                        - generic [ref=f2e360]: "python # Pseudocode structure def process_ip_locations(): # 1. Connect to MongoDB # 2. Read unique IPs from main collection # 3. Use ip2location to get location data # 4. Store results in new collection Or CSV file"
+                  - generic [ref=f2e367]:
+                    - generic [ref=f2e368]: •
+                    - generic [ref=f2e370]: Write results to file + mongoDB collection for location data
+              - generic [ref=f2e376]:
+                - generic [ref=f2e377]: "6."
+                - generic [ref=f2e379]:
+                  - generic [ref=f2e380]: Product information collection (8 hours)
+                  - generic [ref=f2e382]: "Filter data from collections:"
+                  - generic [ref=f2e391]:
+                    - generic [ref=f2e392]: •
+                    - generic [ref=f2e394]: view_product_detail
+                  - generic [ref=f2e401]:
+                    - generic [ref=f2e402]: •
+                    - generic [ref=f2e404]: select_product_option
+                  - generic [ref=f2e411]:
+                    - generic [ref=f2e412]: •
+                    - generic [ref=f2e414]: select_product_option_quality
+                  - generic [ref=f2e421]:
+                    - generic [ref=f2e422]: •
+                    - generic [ref=f2e424]: add_to_cart_action
+                  - generic [ref=f2e431]:
+                    - generic [ref=f2e432]: •
+                    - generic [ref=f2e434]: product_detail_recommendation_visible
+                  - generic [ref=f2e441]:
+                    - generic [ref=f2e442]: •
+                    - generic [ref=f2e444]:
+                      - generic [ref=f2e445]: product_detail_recommendation_noticed
+                      - generic [ref=f2e453]:
+                        - text: → Retrieve
+                        - generic [ref=f2e454]: product_id
+                        - text: (or
+                        - generic [ref=f2e455]: viewing_product_id
+                        - text: if
+                        - generic [ref=f2e456]: product_id
+                        - text: is missing) and
+                        - generic [ref=f2e457]: current_url
+                  - generic [ref=f2e463]:
+                    - text: Filter data from
+                    - generic [ref=f2e464]: product_view_all_recommend_clicked
+                    - text: → Retrieve
+                    - generic [ref=f2e465]: viewing_product_id
+                    - text: and
+                    - generic [ref=f2e466]: referrer_url
+                  - generic [ref=f2e472]:
+                    - text: Crawl the product information based on the above information; get only one active
+                    - generic [ref=f2e473]: product information
+                    - text: for each distinct
+                    - generic [ref=f2e474]: product_id
+                    - text: .
+                  - generic [ref=f2e475]: Store the data in file(s) for later transformation.
+              - generic [ref=f2e484]:
+                - generic [ref=f2e485]: "7."
+                - generic [ref=f2e487]:
+                  - generic [ref=f2e488]: Documentation & Testing (3 hours)
+                  - generic [ref=f2e493]:
+                    - generic [ref=f2e494]: •
+                    - generic [ref=f2e496]: Document setup process
+                  - generic [ref=f2e502]:
+                    - generic [ref=f2e503]: •
+                    - generic [ref=f2e505]: Verify data quality
+              - heading "Deliverables:" [level=4] [ref=f2e512]
+              - generic [ref=f2e516]:
+                - generic [ref=f2e517]: •
+                - generic [ref=f2e519]: Working VM with MongoDB
+              - generic [ref=f2e525]:
+                - generic [ref=f2e526]: •
+                - generic [ref=f2e528]: Python scripts for IP processing
+              - generic [ref=f2e534]:
+                - generic [ref=f2e535]: •
+                - generic [ref=f2e537]: Documentation of data structure
+              - generic [ref=f2e543]:
+                - generic [ref=f2e544]: •
+                - generic [ref=f2e546]: Github repository
+              - separator [ref=f2e557]
+              - figure [ref=f2e567]
+              - generic [ref=f2e585]: LOCAL dev (data sample) —> test code run —> PUSH GITHUB —> LÊN VM CLONE repo về (đặt tên thư mục giống local)
+              - generic [ref=f2e603]: IP
+              - generic [ref=f2e609]: USER-PASSWORD
+        - region [aria-hidden] [ref=f2e617]
+    - status [ref=f2e618]
+    - alert [ref=f2e619]
+  - iframe [aria-hidden] [ref=f2e620]

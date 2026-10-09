@@ -1,0 +1,130 @@
+- generic [active] [ref=f4e1]:
+  - generic [ref=f4e4]:
+    - generic [ref=f4e6]:
+      - link "Skip to content" [ref=f4e8] [cursor=pointer]:
+        - /url: "#main"
+      - generic [ref=f4e13]:
+        - banner [ref=f4e14]:
+          - generic [ref=f4e16]:
+            - generic [ref=f4e17]:
+              - link "🧠 Glamira E-commerce Analytics Pipeline Project" [ref=f4e19] [cursor=pointer]:
+                - /url: /Glamira-E-commerce-Analytics-Pipeline-Project-74bfb35749014a9398efed35c8a2fdc9?pvs=18
+                - generic [ref=f4e20]:
+                  - generic [ref=f4e21]: 🧠
+                  - generic [ref=f4e24]: Glamira E-commerce Analytics Pipeline Project
+              - 'button "🥧 Project 06: Data Pipeline & Storage" [disabled] [ref=f4e29]':
+                - generic [ref=f4e30]: 🥧
+                - generic [ref=f4e33]: "Project 06: Data Pipeline & Storage"
+            - generic [ref=f4e34]:
+              - button "Close panel" [ref=f4e36] [cursor=pointer]
+              - generic [ref=f4e40]:
+                - button [ref=f4e41] [cursor=pointer]
+                - button "Share site to socials" [ref=f4e46] [cursor=pointer]
+                - button [ref=f4e51] [cursor=pointer]
+                - button "More actions" [ref=f4e55] [cursor=pointer]
+                - button "Get Notion free" [ref=f4e58] [cursor=pointer]
+        - main [ref=f4e59]:
+          - generic [ref=f4e64]:
+            - generic [ref=f4e82]:
+              - img "Page icon" [ref=f4e87]: 🥧
+              - 'heading "Project 06: Data Pipeline & Storage" [level=1] [ref=f4e92]'
+            - generic [ref=f4e94]:
+              - generic [ref=f4e95]: "Duration: 2 weeks Focus: Building automated data pipeline"
+              - heading "Learning Objectives:" [level=4] [ref=f4e105]
+              - generic [ref=f4e109]:
+                - generic [ref=f4e110]: •
+                - generic [ref=f4e112]: Understanding ETL processes
+              - generic [ref=f4e118]:
+                - generic [ref=f4e119]: •
+                - generic [ref=f4e121]: Working with Google Cloud Storage
+              - generic [ref=f4e127]:
+                - generic [ref=f4e128]: •
+                - generic [ref=f4e130]: Implementing automated triggers
+              - generic [ref=f4e136]:
+                - generic [ref=f4e137]: •
+                - generic [ref=f4e139]: Basic BigQuery operations
+              - heading "Detailed Steps:" [level=4] [ref=f4e146]
+              - generic [ref=f4e150]:
+                - generic [ref=f4e151]: "1."
+                - generic [ref=f4e153]:
+                  - generic [ref=f4e154]: Data Export Process (4 hours)
+                  - generic [ref=f4e159]:
+                    - generic [ref=f4e160]: •
+                    - generic [ref=f4e162]:
+                      - generic [ref=f4e163]: "Create Python script to:"
+                      - figure [ref=f4e167]:
+                        - generic [ref=f4e168]: "# Pseudocode structure def export_to_gcs(): # 1. Connect to MongoDB (or VM) # 2. Extract data in batches # 3. Convert to appropriate format (CSV/JSONL/PARQUET/AVRO/ORC) # 4. Upload to GCS (all data in VM or in MongoDB) # 5. Log operations # min 3 files: Data raw 41 mill row, IP2Location, Product"
+                  - generic [ref=f4e175]:
+                    - generic [ref=f4e176]: •
+                    - generic [ref=f4e178]: Implement error handling
+                  - generic [ref=f4e184]:
+                    - generic [ref=f4e185]: •
+                    - generic [ref=f4e187]: Add logging functionality
+                  - generic [ref=f4e193]:
+                    - generic [ref=f4e194]: •
+                    - generic [ref=f4e196]: Test with sample data
+              - generic [ref=f4e202]:
+                - generic [ref=f4e203]: "2."
+                - generic [ref=f4e205]:
+                  - generic [ref=f4e206]: BigQuery Integration (8 hours)
+                  - generic [ref=f4e211]:
+                    - generic [ref=f4e212]: •
+                    - generic [ref=f4e214]: Create BigQuery raw dataset
+                  - generic [ref=f4e220]:
+                    - generic [ref=f4e221]: •
+                    - generic [ref=f4e223]: Define table schemas
+                  - generic [ref=f4e229]:
+                    - generic [ref=f4e230]: •
+                    - generic [ref=f4e234]:
+                      - text: Write script to load data from GCS to
+                      - generic [ref=f4e235]: raw layer
+                      - text: in Bigquery
+                  - generic [ref=f4e239]:
+                    - generic [ref=f4e240]: •
+                    - generic [ref=f4e242]:
+                      - generic [ref=f4e243]: "Set up automated triggers using Cloud Functions:"
+                      - figure [ref=f4e247]:
+                        - generic [ref=f4e248]: "python # Pseudocode structure def trigger_bigquery_load(event, context): # 1. Detect new file in GCS # 2. Start BigQuery load job # 3. Log results"
+              - generic [ref=f4e255]:
+                - generic [ref=f4e256]: "3."
+                - generic [ref=f4e258]:
+                  - generic [ref=f4e259]: Testing & Monitoring (2 hours)
+                  - generic [ref=f4e264]:
+                    - generic [ref=f4e265]: •
+                    - generic [ref=f4e267]: Test end-to-end pipeline
+                  - generic [ref=f4e273]:
+                    - generic [ref=f4e274]: •
+                    - generic [ref=f4e276]:
+                      - generic [ref=f4e277]: "Perform Data Profiling, including:"
+                      - generic [ref=f4e282]:
+                        - generic [ref=f4e283]: ◦
+                        - generic [ref=f4e285]: "Information about the data sources: table names, column names, data types, constraints, relationships"
+                      - generic [ref=f4e291]:
+                        - generic [ref=f4e292]: ◦
+                        - generic [ref=f4e296]:
+                          - text: Count
+                          - generic [ref=f4e297]: "Null"
+                          - text: values, distinct values
+                      - generic [ref=f4e301]:
+                        - generic [ref=f4e302]: ◦
+                        - generic [ref=f4e304]: Check data type consistency
+              - heading "Deliverables:" [level=4] [ref=f4e311]
+              - generic [ref=f4e315]:
+                - generic [ref=f4e316]: •
+                - generic [ref=f4e318]: Automated data pipeline
+              - generic [ref=f4e324]:
+                - generic [ref=f4e325]: •
+                - generic [ref=f4e327]: Cloud Function triggers
+              - generic [ref=f4e333]:
+                - generic [ref=f4e334]: •
+                - generic [ref=f4e336]: BigQuery tables
+              - generic [ref=f4e342]:
+                - generic [ref=f4e343]: •
+                - generic [ref=f4e345]: Github repository
+              - separator [ref=f4e356]
+              - figure [ref=f4e366]:
+                - generic [ref=f4e367]: Go online to view this image
+        - region [aria-hidden] [ref=f4e385]
+    - status [ref=f4e386]
+    - alert [ref=f4e387]
+  - iframe [aria-hidden] [ref=f4e388]
