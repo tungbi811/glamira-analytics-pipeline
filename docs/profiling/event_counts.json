@@ -1,0 +1,108 @@
+[{
+  "_id": "view_listing_page",
+  "count": 11259694
+},
+{
+  "_id": "view_product_detail",
+  "count": 10944427
+},
+{
+  "_id": "select_product_option",
+  "count": 8844342
+},
+{
+  "_id": "select_product_option_quality",
+  "count": 2231825
+},
+{
+  "_id": "view_static_page",
+  "count": 1451565
+},
+{
+  "_id": "view_landing_page",
+  "count": 1434230
+},
+{
+  "_id": "product_detail_recommendation_visible",
+  "count": 1302362
+},
+{
+  "_id": "view_home_page",
+  "count": 1053420
+},
+{
+  "_id": "listing_page_recommendation_visible",
+  "count": 718048
+},
+{
+  "_id": "product_detail_recommendation_noticed",
+  "count": 490780
+},
+{
+  "_id": "view_shopping_cart",
+  "count": 343077
+},
+{
+  "_id": "landing_page_recommendation_visible",
+  "count": 314999
+},
+{
+  "_id": "search_box_action",
+  "count": 238308
+},
+{
+  "_id": "add_to_cart_action",
+  "count": 187901
+},
+{
+  "_id": "product_detail_recommendation_clicked",
+  "count": 179228
+},
+{
+  "_id": "view_my_account",
+  "count": 112066
+},
+{
+  "_id": "checkout",
+  "count": 88540
+},
+{
+  "_id": "landing_page_recommendation_noticed",
+  "count": 58186
+},
+{
+  "_id": "listing_page_recommendation_noticed",
+  "count": 39819
+},
+{
+  "_id": "view_all_recommend",
+  "count": 33664
+},
+{
+  "_id": "checkout_success",
+  "count": 26079
+},
+{
+  "_id": "listing_page_recommendation_clicked",
+  "count": 25545
+},
+{
+  "_id": "landing_page_recommendation_clicked",
+  "count": 20128
+},
+{
+  "_id": "product_view_all_recommend_clicked",
+  "count": 16682
+},
+{
+  "_id": "view_sorting_relevance",
+  "count": 15284
+},
+{
+  "_id": "sorting_relevance_click_action",
+  "count": 1713
+},
+{
+  "_id": "back_to_product_action",
+  "count": 561
+}]
