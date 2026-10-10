@@ -8,7 +8,8 @@ resource "google_project_service" "apis" {
     "storage.googleapis.com",
     "bigquery.googleapis.com",
     "compute.googleapis.com", # VMs, firewalls
-    "iam.googleapis.com"      # service accounts
+    "iam.googleapis.com",     # service accounts
+    "iap.googleapis.com"      # Identity-Aware Proxy
   ])
   service = each.value
 }
