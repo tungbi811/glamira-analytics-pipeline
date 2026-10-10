@@ -2,21 +2,30 @@
 # Import the Glamira event dump (41M docs) from GCS into MongoDB.
 # Safe to re-run: exits early if the collection is already complete.
 #
-# Usage (on the VM):
-#   export MONGO_USER=glamira MONGO_PASSWORD='...'
+# Usage (on the VM, from the repo root):
+#   cp .env.example .env   # fill in values, once
 #   bash ingest/import_events.sh
 set -euo pipefail
 
+# --- Load .env from the repo root, if present ----------------------
+ENV_FILE="$(cd "$(dirname "$0")/.." && pwd)/.env"
+if [[ -f "$ENV_FILE" ]]; then
+  set -a
+  # shellcheck source=/dev/null
+  source "$ENV_FILE"
+  set +a
+fi
+
 # --- Config -------------------------------------------------------
-BUCKET="gs://glamira-analytics-511114-raw"
 ARCHIVE="glamira_ubl_2019.tar.gz"
 DATA_DIR="$HOME/data"
-DB="glamira"
+DB="${MONGO_DB:-glamira}"
 COLLECTION="summary"
 EXPECTED_DOCS=41432473
 
-: "${MONGO_USER:?Set MONGO_USER}"
-: "${MONGO_PASSWORD:?Set MONGO_PASSWORD}"
+: "${GCS_BUCKET:?Set GCS_BUCKET in .env}"
+: "${MONGO_USER:?Set MONGO_USER in .env}"
+: "${MONGO_PASSWORD:?Set MONGO_PASSWORD in .env}"
 
 # --- Helpers ------------------------------------------------------
 log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"; }
@@ -43,7 +52,7 @@ if [[ -f "$DATA_DIR/$ARCHIVE" ]]; then
   log "Archive already downloaded, skipping"
 else
   log "Downloading $ARCHIVE"
-  gcloud storage cp "$BUCKET/source/$ARCHIVE" "$DATA_DIR/"
+  gcloud storage cp "$GCS_BUCKET/source/$ARCHIVE" "$DATA_DIR/"
 fi
 
 # --- Step 2: extract ----------------------------------------------
