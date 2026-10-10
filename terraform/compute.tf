@@ -6,7 +6,7 @@ resource "google_compute_instance" "vm" {
   allow_stopping_for_update = true
   boot_disk {
     initialize_params {
-      image = "ubuntu-os-cloud/ubuntu-2404-lts-amd64"
+      image = "ubuntu-os-cloud/ubuntu-2204-lts"
       size  = 100
       type  = "pd-balanced"
     }
