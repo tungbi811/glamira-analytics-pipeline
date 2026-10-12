@@ -1,0 +1,22 @@
+version: 2
+
+models:
+  - name: int_order_items
+    description: One row per order line from checkout_success, deduplicated on order_id, prices in local currency and USD.
+    data_tests:
+      - unique:
+          column_name: "CONCAT(order_id, '-', CAST(line_number AS STRING))"
+    columns:
+      - name: order_id
+        data_tests: [not_null]
+      - name: currency_code
+        description: ISO code from the store (seeds.currency), not the price symbol
+        data_tests: [not_null]
+      - name: order_qty
+        data_tests: [not_null]
+      - name: unit_price
+        description: 1 line has no price in raw, so this only warns
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
