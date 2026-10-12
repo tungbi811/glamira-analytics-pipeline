@@ -5,7 +5,7 @@ Reads distinct IPs from `summary`, resolves each with the IP2Location DB3 file
 temp collection and swaps it in, so a failed run never leaves a half-written table.
 
 Usage (on the VM, from the repo root):
-    uv run ingest/lookup_ips.py
+    uv run extract/lookup_ips.py
 """
 
 import logging

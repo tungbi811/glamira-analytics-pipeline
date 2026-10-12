@@ -21,8 +21,8 @@ Other objects (`products.raw`) become JSON strings. Fields not listed in TABLES
 go to `_extra` as JSON, so nothing is dropped.
 
 Usage (on the VM, from the repo root):
-    uv run ingest/mongo_to_gcs.py ip_locations      # one table (~2 min, good test)
-    uv run ingest/mongo_to_gcs.py                   # all tables (~40 min)
+    uv run extract/mongo_to_gcs.py ip_locations      # one table (~2 min, good test)
+    uv run extract/mongo_to_gcs.py                   # all tables (~40 min)
 """
 
 import argparse

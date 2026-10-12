@@ -4,10 +4,10 @@ All collections live in the `glamira` MongoDB database on the VM.
 
 | Collection | Rows | Built by | Section |
 |---|---:|---|---|
-| `summary` | 41,432,473 | `ingest/import_events.sh` | [Events](#events) |
-| `ip_locations` | 3,239,628 | `ingest/lookup_ips.py` | [ip_locations](#ip_locations) |
-| `products` | 19,417 | `ingest/crawl_products.py` | [products](#products) |
-| `product_ids` | 19,417 | `ingest/crawl_products.py` | working list for the crawler, not exported |
+| `summary` | 41,432,473 | `extract/import_events.sh` | [Events](#events) |
+| `ip_locations` | 3,239,628 | `extract/lookup_ips.py` | [ip_locations](#ip_locations) |
+| `products` | 19,417 | `extract/crawl_products.py` | [products](#products) |
+| `product_ids` | 19,417 | `extract/crawl_products.py` | working list for the crawler, not exported |
 
 ---
 
@@ -15,7 +15,7 @@ All collections live in the `glamira` MongoDB database on the VM.
 
 Raw clickstream from Glamira's country stores (glamira.de, .fr, .co.uk, ...): one document = one user action on the site.
 
-- **Source:** `gs://<bucket>/source/glamira_ubl_2019.tar.gz` (mongodump), restored by `ingest/import_events.sh`
+- **Source:** `gs://<bucket>/source/glamira_ubl_2019.tar.gz` (mongodump), restored by `extract/import_events.sh`
 - **Size:** 41,432,473 documents, 27 event types
 - **Profiling files:** [`profiling/event_counts.json`](profiling/event_counts.json) (full scan), [`profiling/schema_sample.json`](profiling/schema_sample.json) (Compass schema, 1,000-doc sample)
 - **Checked against:** one real document each of `view_product_detail`, `select_product_option`, `add_to_cart_action`, `checkout_success`, `product_detail_recommendation_clicked`, `search_box_action`
@@ -186,7 +186,7 @@ One document per unique IP in `summary`, resolved with the IP2Location DB3 file 
 
 - **Rows:** 3,239,628 unique IPs
 - **Unresolved:** 38,242 (1.2%): private, invalid or IPv6 addresses. The DB3 file is IPv4 only
-- **Rebuild:** `uv run ingest/lookup_ips.py` on the VM (~8 min). Writes `ip_locations_tmp`, then swaps it in, so a failed run keeps the old table
+- **Rebuild:** `uv run extract/lookup_ips.py` on the VM (~8 min). Writes `ip_locations_tmp`, then swaps it in, so a failed run keeps the old table
 - **Join:** `summary.ip = ip_locations.ip` (unique index on `ip`)
 
 | Field | Type | Example | Meaning |
@@ -207,7 +207,7 @@ One document per product id seen in the events, crawled from glamira.com.
 
 - **Input:** `product_ids`, the unique ids from 7 product events (`product_id`, or `viewing_product_id` for `product_view_all_recommend_clicked`)
 - **Source:** `https://www.glamira.com/productcustomizer/reactdata/index/id/<product_id>/`, the JSON endpoint the product page loads. The `.com` store gives English names; the country stores return localized names
-- **Rebuild:** `uv run ingest/crawl_products.py` (~1.5–3 h). Resumable: products already `ok` or `not_found` are skipped; `error` ones are retried
+- **Rebuild:** `uv run extract/crawl_products.py` (~1.5–3 h). Resumable: products already `ok` or `not_found` are skipped; `error` ones are retried
 - **Join:** `summary.product_id = products.product_id` (both strings; unique index on `product_id`)
 - **Last crawl (2026-10-12):** 19,417 ids: 18,981 `ok` (97.8%), 436 `not_found` (2.2%), 0 `error`. The v1 crawl gave 18,987 / 431 for 19,418 ids
 

@@ -4,7 +4,7 @@
 #
 # Usage (on the VM, from the repo root):
 #   cp .env.example .env   # fill in values, once
-#   bash ingest/import_events.sh
+#   bash extract/import_events.sh
 set -euo pipefail
 
 # --- Load .env from the repo root, if present ----------------------

@@ -1,6 +1,6 @@
 # BigQuery raw layer profiling
 
-Profile of `raw.summary`, `raw.ip_locations` and `raw.products` after the first load (export run `20261012T080352` for summary, 2026-10-12). Queries: [`ingest/profile.sql`](../../ingest/profile.sql), about 27 GB scanned.
+Profile of `raw.summary`, `raw.ip_locations` and `raw.products` after the first load (export run `20261012T080352` for summary, 2026-10-12). Queries: [`load/profile.sql`](../../load/profile.sql), about 27 GB scanned.
 
 ## Summary
 

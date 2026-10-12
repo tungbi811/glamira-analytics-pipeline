@@ -8,9 +8,9 @@ Safe to re-run: products already `ok` or `not_found` are skipped, so a crash
 only costs the in-flight requests. Failed products are retried in slower rounds.
 
 Usage (on the VM, from the repo root):
-    uv run ingest/crawl_products.py             # full crawl
-    uv run ingest/crawl_products.py --limit 20  # quick test
-    uv run ingest/crawl_products.py --workers 8 # faster (more risk of being rate-limited)
+    uv run extract/crawl_products.py             # full crawl
+    uv run extract/crawl_products.py --limit 20  # quick test
+    uv run extract/crawl_products.py --workers 8 # faster (more risk of being rate-limited)
 """
 
 import argparse

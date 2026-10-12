@@ -5,8 +5,8 @@
 # --replace overwrites the table, so re-running never duplicates rows.
 #
 # Usage (from the repo root, on the VM or the Mac):
-#   bash ingest/gcs_to_bq.sh                 # all tables
-#   bash ingest/gcs_to_bq.sh products        # one table
+#   bash load/gcs_to_bq.sh                 # all tables
+#   bash load/gcs_to_bq.sh products        # one table
 
 set -euo pipefail  # stop on the first error
 
