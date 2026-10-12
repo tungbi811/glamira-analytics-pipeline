@@ -1,0 +1,22 @@
+version: 2
+
+sources:
+  - name: raw
+    database: glamira-analytics-511114
+    schema: raw
+    tables:
+      - name: summary
+        description: Raw website events, one row per event (41.4M)
+        columns:
+          - name: _id
+            data_tests: [unique, not_null]
+      - name: ip_locations
+        description: IP2Location lookup, one row per IP
+        columns:
+          - name: ip
+            data_tests: [unique, not_null]
+      - name: products
+        description: Crawled product pages, one row per product_id
+        columns:
+          - name: product_id
+            data_tests: [unique, not_null]
