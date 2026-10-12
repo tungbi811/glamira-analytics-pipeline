@@ -6,7 +6,7 @@ ZONE ?= asia-southeast1-a
 IAP  := --zone=$(ZONE) --tunnel-through-iap
 
 .DEFAULT_GOAL := help
-.PHONY: help ssh tunnel vm-start vm-stop vm-status
+.PHONY: help ssh tunnel mongo vm-start vm-stop vm-status
 
 help: ## List available commands
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-10s %s\n", $$1, $$2}'
@@ -17,6 +17,10 @@ ssh: ## Open a shell on the VM
 tunnel: ## Forward localhost:27017 to MongoDB on the VM (Ctrl+C to close)
 	@echo "Tunnel open: connect to localhost:27017. Ctrl+C to close."
 	gcloud compute ssh $(VM) $(IAP) -- -N -L 27017:localhost:27017
+
+mongo: ## Open mongosh as the app user (VM, or Mac with tunnel open)
+	@set -a && . ./.env && set +a && \
+	mongosh -u "$$MONGO_USER" -p "$$MONGO_PASSWORD" --authenticationDatabase admin "$${MONGO_DB:-glamira}"
 
 vm-start: ## Start the VM
 	gcloud compute instances start $(VM) --zone=$(ZONE)
