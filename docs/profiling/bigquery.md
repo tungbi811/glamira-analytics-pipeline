@@ -11,7 +11,7 @@ Profile of `raw.summary`, `raw.ip_locations` and `raw.products` after the first 
 | Time range | **2020-04-01 00:00 → 2020-06-04 10:21 UTC** (65 days); last day is partial | exclude or flag 2020-06-04 in daily metrics |
 | IP join | 100% of events find their IP; 98.88% have a country | none |
 | Product join (product events) | 98.46% `ok`, 1.54% `not_found`, 0% never crawled | none |
-| Product join (ordered items) | **80.7% `ok`, 2.2% `not_found`, 17.1% never crawled** (94 products) | crawl the missing ids (see 4) |
+| Product join (ordered items) | **80.7% `ok`, 2.2% `not_found`, 17.1% never crawled** (94 products, all free gifts) | flag `price = 0` lines as `is_free_gift` (see 4) |
 | Orders | 26,079 `checkout_success` rows, 26,031 distinct `order_id` | deduplicate on `order_id` |
 
 ## 1. Volume and time range
@@ -66,7 +66,8 @@ Fields per event type (from query 2b):
 - **IP → location:** every event IP is in `ip_locations`. 1.12% of events have no country (IP2Location could not resolve the IP).
 - **Product events → products:** 98.46% `ok`. The 1.54% `not_found` are products removed from the site since 2020.
 - **Ordered items → products: 17.1% never crawled.** The crawler took ids from the 7 product events only, so ordered products that never appeared on those events were skipped. That is 94 distinct products but 6,000 order lines. Across all `cart_products` (including `checkout` and `view_shopping_cart`), 140 distinct ids are missing.
-  - **Fix:** add `cart_products[].product_id` to `product_ids` and re-run the crawler for those 140 ids (a few minutes). The many `0,00` cart prices suggest some of these are free add-ons (gift box, ring sizer), which may return `not_found`.
+  - **They are free gifts.** 5,999 of the 6,000 lines have price `0,00`, and the most frequent ids are promotional pendants added to orders automatically (109814 "Free Pendant - Billy", 108669 "Free Pendant - Pomona", 104330 "Free Pendant - Meriem", checked on glamira.com). Only 1 paid order line has no crawled product.
+  - **Decision: not crawled.** Revenue is unaffected. dbt flags `price = 0` lines as `is_free_gift` and leaves them out of product rankings.
 
 ## 5. Formats dbt has to parse
 
