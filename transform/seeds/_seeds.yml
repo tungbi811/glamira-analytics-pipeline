@@ -1,0 +1,22 @@
+version: 2
+
+seeds:
+  - name: currency
+    description: Store to ISO currency, from the store's country domain. Test stores (glamira.local) left out.
+    columns:
+      - name: store_id
+        data_tests: [unique, not_null]
+      - name: currency_code
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('exchange_rates')
+                field: currency_code
+
+  - name: exchange_rates
+    description: Approximate average rates for April to June 2020, units of currency per 1 USD.
+    columns:
+      - name: currency_code
+        data_tests: [unique, not_null]
+      - name: units_per_usd
+        data_tests: [not_null]

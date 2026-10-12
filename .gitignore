@@ -17,6 +17,7 @@ wheels/
 # Data files — too large and machine-specific for version control
 data/
 *.csv
+!transform/seeds/*.csv
 *.jsonl
 *.log
 
