@@ -1,0 +1,30 @@
+version: 2
+
+models:
+  - name: stg_events
+    description: One row per website event from raw.summary, typed and cleaned. No rows removed.
+    columns:
+      - name: event_id
+        data_tests: [unique, not_null]
+      - name: event_time
+        description: UTC, from time_stamp (epoch seconds)
+        data_tests: [not_null]
+      - name: event_name
+        data_tests: [not_null]
+
+  - name: stg_ip_locations
+    description: One row per IP with its IP2Location country, region and city. '-' mapped to NULL.
+    columns:
+      - name: location_ip
+        data_tests: [unique, not_null]
+
+  - name: stg_products
+    description: One row per crawled product.
+    columns:
+      - name: product_id
+        data_tests: [unique, not_null]
+      - name: crawl_status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [ok, not_found, error]

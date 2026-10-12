@@ -1,0 +1,20 @@
+SELECT
+    product_id,
+    status                                 AS crawl_status,
+    status = 'ok'                          AS is_page_found,
+    SAFE_CAST(crawled_at AS TIMESTAMP)     AS crawled_time,
+    name                                   AS product_name,
+    sku,
+    attribute_set,
+    type_id,
+    product_type,
+    collection_id,
+    collection                             AS collection_name,
+    NULLIF(category, '0')                  AS category_id,
+    category_name,
+    gender,
+    store_code,
+    ROUND(SAFE_CAST(price AS NUMERIC), 2)     AS price,
+    ROUND(SAFE_CAST(min_price AS NUMERIC), 2) AS min_price,
+    ROUND(SAFE_CAST(max_price AS NUMERIC), 2) AS max_price
+FROM {{ source('raw', 'products') }}
