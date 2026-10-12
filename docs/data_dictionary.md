@@ -1,4 +1,17 @@
-# Data dictionary: `glamira.summary`
+# Data dictionary
+
+All collections live in the `glamira` MongoDB database on the VM.
+
+| Collection | Rows | Built by | Section |
+|---|---:|---|---|
+| `summary` | 41,432,473 | `ingest/import_events.sh` | [Events](#events) |
+| `ip_locations` | 3,239,628 | `ingest/lookup_ips.py` | [ip_locations](#ip_locations) |
+| `products` | 19,417 | `ingest/crawl_products.py` | [products](#products) |
+| `product_ids` | 19,417 | `ingest/crawl_products.py` | working list for the crawler, not exported |
+
+---
+
+## `summary`
 
 Raw clickstream from Glamira's country stores (glamira.de, .fr, .co.uk, ...): one document = one user action on the site.
 
@@ -164,3 +177,64 @@ db.summary.aggregate([
   { $sort: { "_id.event": 1, n: -1 } }
 ], { allowDiskUse: true })
 ```
+
+---
+
+## `ip_locations`
+
+One document per unique IP in `summary`, resolved with the IP2Location DB3 file (`gs://<bucket>/source/ip2location_db3.bin`).
+
+- **Rows:** 3,239,628 unique IPs
+- **Unresolved:** 38,242 (1.2%): private, invalid or IPv6 addresses. The DB3 file is IPv4 only
+- **Rebuild:** `uv run ingest/lookup_ips.py` on the VM (~8 min). Writes `ip_locations_tmp`, then swaps it in, so a failed run keeps the old table
+- **Join:** `summary.ip = ip_locations.ip` (unique index on `ip`)
+
+| Field | Type | Example | Meaning |
+|---|---|---|---|
+| `ip` | string | `81.2.69.142` | IP address, same format as `summary.ip`. **PII** |
+| `country_code` | string / null | `GB` | ISO 3166-1 alpha-2 country code |
+| `country` | string / null | `United Kingdom` | Country name (English) |
+| `region` | string / null | `England` | Region / state |
+| `city` | string / null | `Bracknell` | City |
+
+All location fields are null when the IP can't be resolved. IP2Location's own markers (`-`, `INVALID IP ADDRESS`) are converted to null.
+
+---
+
+## `products`
+
+One document per product id seen in the events, crawled from glamira.com.
+
+- **Input:** `product_ids`, the unique ids from 7 product events (`product_id`, or `viewing_product_id` for `product_view_all_recommend_clicked`)
+- **Source:** `https://www.glamira.com/productcustomizer/reactdata/index/id/<product_id>/`, the JSON endpoint the product page loads. The `.com` store gives English names; the country stores return localized names
+- **Rebuild:** `uv run ingest/crawl_products.py` (~1.5–3 h). Resumable: products already `ok` or `not_found` are skipped; `error` ones are retried
+- **Join:** `summary.product_id = products.product_id` (both strings; unique index on `product_id`)
+- **Last crawl (2026-10-12):** 19,417 ids: 18,981 `ok` (97.8%), 436 `not_found` (2.2%), 0 `error`. The v1 crawl gave 18,987 / 431 for 19,418 ids
+
+| Field | Type | Example | Meaning |
+|---|---|---|---|
+| `product_id` | string | `'110474'` | Product id, stored as string to match `summary` |
+| `status` | string | `ok` | `ok` = crawled, `not_found` = 404 (product removed from the site), `error` = failed, see `error` |
+| `error` | string | `HTTP 403` | Failure reason; only on `status: error` |
+| `crawled_at` | datetime (UTC) | `2026-10-12T05:11:51Z` | When the product was fetched |
+| `name` | string | `GLAMIRA Men's Pendant Viktor` | Product name (English) |
+| `sku` | string | `Men-Viktor` | Product SKU |
+| `product_type` | string | `pendant` | Product type: `ring`, `wedding_ring`, `pendant`, `bracelet`, ... |
+| `collection` | string | `symbols` | Product collection (not the event type in `summary.collection`) |
+| `collection_id` | string | `'5157'` | Collection id |
+| `gender` | string | `men` | Target gender: `men`, `women`, `kids`, ... |
+| `attribute_set` | string | `diamonds` | Product attribute group |
+| `type_id` | string | `simple` | Magento product type |
+| `category` | integer | `0` | Category id; `0` / empty on samples seen |
+| `category_name` | string | `''` | Category name; empty on samples seen |
+| `price` | string | `'279.000000'` | Default-configuration price on glamira.com, as text. **Today's price**, not the 2020 price |
+| `min_price` | string | `'141.000000'` | Cheapest configuration |
+| `max_price` | string | `'2541.000000'` | Most expensive configuration |
+| `store_code` | string | `glus` | Store the data came from (`glus` = glamira.com) |
+| `raw` | object | | Full JSON response, kept so new fields can be extracted without re-crawling |
+
+### Crawl notes
+
+- **Run from a local machine, not the VM.** glamira.com sits behind Akamai, which returns `403 Access Denied` for Google Cloud IPs (tested two VM IPs and five browser fingerprints, all 403). The crawler runs on a laptop and writes to the VM's MongoDB through `make tunnel`. Airflow treats `products` as a one-time backfill.
+- **Browser fingerprint needed.** Plain `curl` / `requests` also get 403 from home IPs, because Akamai checks the TLS handshake. `curl_cffi` with `impersonate="chrome"` passes.
+- **Prices are from the crawl date** (2026), not from when the events happened (2020). For revenue, use `summary.cart_products[].price` on `checkout_success`.

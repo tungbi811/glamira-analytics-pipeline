@@ -10,6 +10,7 @@ only costs the in-flight requests. Failed products are retried in slower rounds.
 Usage (on the VM, from the repo root):
     uv run ingest/crawl_products.py             # full crawl
     uv run ingest/crawl_products.py --limit 20  # quick test
+    uv run ingest/crawl_products.py --workers 8 # faster (more risk of being rate-limited)
 """
 
 import argparse
@@ -25,6 +26,7 @@ from urllib.parse import quote_plus
 from curl_cffi import requests
 from dotenv import load_dotenv
 from pymongo import ASCENDING, MongoClient
+from tqdm import tqdm
 
 # --- Config ---------------------------------------------------------
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -126,24 +128,32 @@ def fetch(product_id, delay):
     return doc | {"status": "ok", **{f: data.get(f) for f in FIELDS}, "raw": data}
 
 
-def run_round(db, ids, round_num, delay_min, delay_max, workers):
-    """Crawl ids concurrently, save each result as it arrives. Returns ids that errored."""
+def run_round(db, ids, round_num, delay_min, delay_max, workers, done=None):
+    """Crawl ids concurrently, save each result as it arrives. Returns ids that errored.
+
+    `done` = {"ok": n, "not_found": n} from earlier runs, so the bar shows overall progress.
+    """
     log.info("Round %d: %s products, %d workers, %.0f-%.0fs delay",
              round_num, f"{len(ids):,}", workers, delay_min, delay_max)
-    counts = {"ok": 0, "not_found": 0, "error": 0}
+    counts = {"ok": 0, "not_found": 0, **(done or {}), "error": 0}
+    already = sum(counts.values())
     failed = []
 
     with ThreadPoolExecutor(max_workers=workers) as pool:
         futures = [pool.submit(fetch, pid, random.uniform(delay_min, delay_max)) for pid in ids]
-        for i, future in enumerate(as_completed(futures), start=1):
+        bar = tqdm(as_completed(futures), total=already + len(ids), initial=already,
+                   unit="product", desc=f"Round {round_num}")
+        for future in bar:
             doc = future.result()
             db[TARGET].replace_one({"product_id": doc["product_id"]}, doc, upsert=True)
             counts[doc["status"]] += 1
             if doc["status"] == "error":
                 failed.append(doc["product_id"])
-            if i % 500 == 0:
-                log.info("  %s/%s  ok=%s not_found=%s error=%s", f"{i:,}", f"{len(ids):,}",
-                         counts["ok"], counts["not_found"], counts["error"])
+            bar.set_postfix(counts, refresh=False)
+            if doc["status"] == "ok":
+                bar.write(f"  ok  {doc['product_id']:>7}  {doc['name']}")
+            else:
+                bar.write(f"  {doc['status']:<9} {doc['product_id']:>7}  {doc.get('error', '')}")
 
     log.info("Round %d done: ok=%s not_found=%s error=%s",
              round_num, counts["ok"], counts["not_found"], counts["error"])
@@ -153,6 +163,7 @@ def run_round(db, ids, round_num, delay_min, delay_max, workers):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--limit", type=int, help="crawl only N products (for testing)")
+    parser.add_argument("--workers", type=int, default=ROUNDS[0][2], help="parallel workers in round 1")
     args = parser.parse_args()
 
     db = connect()
@@ -160,14 +171,18 @@ def main():
     db[TARGET].create_index([("product_id", ASCENDING)], unique=True)
 
     ids = pending_ids(db)
-    log.info("%s products to crawl", f"{len(ids):,}")
+    done = {s: db[TARGET].count_documents({"status": s}) for s in ("ok", "not_found")}
+    log.info("%s products to crawl, %s already done", f"{len(ids):,}", f"{sum(done.values()):,}")
     if args.limit:
         ids = ids[: args.limit]
 
-    for round_num, (delay_min, delay_max, workers) in enumerate(ROUNDS, start=1):
+    rounds = [(*ROUNDS[0][:2], args.workers), *ROUNDS[1:]]
+    for round_num, (delay_min, delay_max, workers) in enumerate(rounds, start=1):
         if not ids:
             break
-        ids = run_round(db, ids, round_num, delay_min, delay_max, workers)
+        # Round 1 continues the overall count; retry rounds count only their own retries.
+        ids = run_round(db, ids, round_num, delay_min, delay_max, workers,
+                        done=done if round_num == 1 else None)
 
     summary = {s: db[TARGET].count_documents({"status": s}) for s in ("ok", "not_found", "error")}
     log.info("Done: %s", summary)
