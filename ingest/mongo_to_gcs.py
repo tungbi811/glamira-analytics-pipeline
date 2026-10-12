@@ -7,10 +7,18 @@ Each run writes one folder per table:
 The Cloud Function loads a folder only when `_SUCCESS` appears, so a failed or
 half-finished export is never loaded. Re-running creates a new run folder.
 
-Every column is STRING (raw layer). The source has mixed types (ids are text
+Every value is STRING (raw layer). The source has mixed types (ids are text
 or numbers, `price` is locale-formatted text), so typing is left to dbt.
-Arrays and objects (`option`, `cart_products`, `raw`) become JSON strings.
-Fields not listed in TABLES go to `_extra` as JSON, so nothing is dropped.
+
+Special cases in `summary`:
+- `option` comes in several shapes (list of option records, a flat dict like
+  {"alloy": "white-585"}, a list of such dicts, a scalar). All are normalized to
+  one list of {option_label, option_id, value_label, value_id}.
+- `cart_products` becomes a list of {product_id, amount, price, currency, option},
+  with its inner `option` normalized the same way.
+- Both are always a list (empty when missing), matching BigQuery REPEATED RECORD.
+Other objects (`products.raw`) become JSON strings. Fields not listed in TABLES
+go to `_extra` as JSON, so nothing is dropped.
 
 Usage (on the VM, from the repo root):
     uv run ingest/mongo_to_gcs.py ip_locations      # one table (~2 min, good test)
@@ -51,7 +59,7 @@ TABLES = {
         "product_id", "option", "price", "currency", "is_paypal", "cat_id",
         "order_id", "cart_products",
         "viewing_product_id", "recommendation_product_id", "recommendation_clicked_position",
-        "recommendation", "utm_source", "utm_medium", "key_search", "collect_id",
+        "recommendation_product_position", "recommendation", "utm_source", "utm_medium", "key_search", "collect_id",
     ],
     "ip_locations": ["ip", "country_code", "country", "region", "city"],
     "products": [
@@ -61,6 +69,13 @@ TABLES = {
         "raw",
     ],
 }
+
+# Nested columns (summary only). Everything else is a plain string.
+OPTION_FIELDS = ["option_label", "option_id", "value_label", "value_id"]
+OPTION = pa.struct([(f, pa.string()) for f in OPTION_FIELDS])
+CART_FIELDS = ["product_id", "amount", "price", "currency"]
+CART_ITEM = pa.struct([*[(f, pa.string()) for f in CART_FIELDS], ("option", pa.list_(OPTION))])
+NESTED = {"option": pa.list_(OPTION), "cart_products": pa.list_(CART_ITEM)}
 
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 log = logging.getLogger(__name__)
@@ -90,9 +105,40 @@ def to_text(value):
     return json.dumps(value, default=str, ensure_ascii=False)  # arrays, objects
 
 
+def normalize_option(value):
+    """Return `option` as a list of {option_label, option_id, value_label, value_id}, whatever its shape."""
+    if not value:
+        return []
+    if not isinstance(value, list):
+        value = [value]
+    out = []
+    for item in value:
+        if isinstance(item, dict) and "option_label" in item:  # usual shape
+            out.append({f: to_text(item.get(f)) for f in OPTION_FIELDS})
+        elif isinstance(item, dict):  # flat {label: value}, e.g. {"alloy": "white-585"}
+            out.extend({"option_label": to_text(k), "option_id": None, "value_label": to_text(v), "value_id": None}
+                       for k, v in item.items())
+        else:  # bare value
+            out.append({"option_label": to_text(item), "option_id": None, "value_label": None, "value_id": None})
+    return out
+
+
+def normalize_cart(value):
+    """Return `cart_products` as a list of {product_id, amount, price, currency, option}."""
+    if not value:
+        return []
+    if not isinstance(value, list):
+        value = [value]
+    return [{**{f: to_text(item.get(f)) for f in CART_FIELDS}, "option": normalize_option(item.get("option"))}
+            for item in value if isinstance(item, dict)]
+
+
+CONVERTERS = {"option": normalize_option, "cart_products": normalize_cart}
+
+
 def to_row(doc, columns):
     """Pick the known columns; anything else goes to `_extra` as JSON."""
-    row = {col: to_text(doc.pop(col, None)) for col in columns}
+    row = {col: CONVERTERS.get(col, to_text)(doc.pop(col, None)) for col in columns}
     doc.pop("_id", None)  # only kept when listed (summary)
     row[EXTRA] = to_text(doc) if doc else None
     return row
@@ -109,7 +155,7 @@ def upload_part(bucket, path, rows, schema):
 
 def export_table(db, bucket, name, run_id):
     columns = TABLES[name]
-    schema = pa.schema([(col, pa.string()) for col in [*columns, EXTRA]])
+    schema = pa.schema([(col, NESTED.get(col, pa.string())) for col in [*columns, EXTRA]])
     folder = f"{PREFIX}/{name}/{run_id}"
     total = db[name].estimated_document_count()
     log.info("Exporting %s (%s docs) to gs://%s/%s/", name, f"{total:,}", bucket.name, folder)
