@@ -47,7 +47,9 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(REPO_ROOT / ".env")
 
 PREFIX = "export"
-ROWS_PER_PART = 250_000  # ~20-40 MB per Parquet file; keeps memory low on e2-standard-2
+# Rows held in memory before each Parquet file is written. `products` is small per part
+# because every doc carries the full crawl JSON (`raw`); a single 19k-row part froze the VM.
+ROWS_PER_PART = {"summary": 250_000, "ip_locations": 250_000, "products": 1_000}
 EXTRA = "_extra"
 
 # Columns per table, in BigQuery column order. See docs/data_dictionary.md.
@@ -164,7 +166,7 @@ def export_table(db, bucket, name, run_id):
     with tqdm(total=total, unit="doc", desc=name) as bar:
         for doc in db[name].find({}, batch_size=10_000):
             rows.append(to_row(doc, columns))
-            if len(rows) == ROWS_PER_PART:
+            if len(rows) == ROWS_PER_PART[name]:
                 parts += 1
                 upload_part(bucket, f"{folder}/part-{parts:05d}.parquet", rows, schema)
                 count += len(rows)
