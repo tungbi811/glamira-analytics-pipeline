@@ -1,6 +1,9 @@
 -- One row per order line (order_id + line_number) from checkout_success.
 -- Every dimension key falls back to -1 ('unknown'), so no line is lost in a join.
 -- Amounts are USD only; local-currency prices stay in int_order_items for audits.
+-- date, location and device keys are computed here, not joined, so declare those dims
+-- as dependencies: they must exist before the relationships tests run.
+-- depends_on: {{ ref('dim_date') }}, {{ ref('dim_location') }}, {{ ref('dim_device') }}
 SELECT
     i.order_id,
     i.line_number,
