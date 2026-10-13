@@ -1,3 +1,7 @@
+-- A table, not a view: the marts read it several times, and as a view each read
+-- would re-scan all 41M events.
+{{ config(materialized='table') }}
+
 WITH orders AS (
     SELECT *
     FROM {{ ref('stg_events') }}
@@ -17,6 +21,38 @@ items AS (
         o.user_id,
         o.ip,
         o.store_id,
+        o.resolution,
+        -- Order matters: tablets before mobile, and Edge/Samsung/Chrome before Safari
+        -- because their user agents also contain 'Safari'.
+        CASE
+            WHEN REGEXP_CONTAINS(o.user_agent, r'iPad|Tablet') THEN 'tablet'
+            WHEN REGEXP_CONTAINS(o.user_agent, r'Android') AND NOT REGEXP_CONTAINS(o.user_agent, r'Mobile') THEN 'tablet'
+            WHEN REGEXP_CONTAINS(o.user_agent, r'Mobi|iPhone|iPod|Android') THEN 'mobile'
+            WHEN o.user_agent IS NULL THEN NULL
+            ELSE 'desktop'
+        END                                          AS device_type,
+        CASE
+            WHEN REGEXP_CONTAINS(o.user_agent, r'iPhone|iPad|iPod') THEN 'iOS'
+            WHEN REGEXP_CONTAINS(o.user_agent, r'Android') THEN 'Android'
+            WHEN REGEXP_CONTAINS(o.user_agent, r'Windows') THEN 'Windows'
+            WHEN REGEXP_CONTAINS(o.user_agent, r'Mac OS X|Macintosh') THEN 'macOS'
+            WHEN REGEXP_CONTAINS(o.user_agent, r'CrOS') THEN 'Chrome OS'
+            WHEN REGEXP_CONTAINS(o.user_agent, r'Linux') THEN 'Linux'
+            WHEN o.user_agent IS NULL THEN NULL
+            ELSE 'other'
+        END                                          AS os_name,
+        CASE
+            WHEN REGEXP_CONTAINS(o.user_agent, r'FBAN|FBAV|Instagram') THEN 'Facebook/Instagram app'
+            WHEN REGEXP_CONTAINS(o.user_agent, r'Edg/|Edge/|EdgiOS') THEN 'Edge'
+            WHEN REGEXP_CONTAINS(o.user_agent, r'SamsungBrowser') THEN 'Samsung Internet'
+            WHEN REGEXP_CONTAINS(o.user_agent, r'OPR/|Opera') THEN 'Opera'
+            WHEN REGEXP_CONTAINS(o.user_agent, r'Chrome/|CriOS') THEN 'Chrome'
+            WHEN REGEXP_CONTAINS(o.user_agent, r'Firefox|FxiOS') THEN 'Firefox'
+            WHEN REGEXP_CONTAINS(o.user_agent, r'Safari') THEN 'Safari'
+            WHEN REGEXP_CONTAINS(o.user_agent, r'Trident|MSIE') THEN 'Internet Explorer'
+            WHEN o.user_agent IS NULL THEN NULL
+            ELSE 'other'
+        END                                          AS browser_name,
         item.product_id,
         item.option,
         SAFE_CAST(item.amount AS INT64)              AS order_qty,
