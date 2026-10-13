@@ -37,3 +37,7 @@ profiles.yml
 .terraform/
 *.tfstate
 *.tfstate.*
+
+# Airflow: generated config holds secret_key / jwt_secret; logs are runtime output
+airflow/config/airflow.cfg
+airflow/logs/
