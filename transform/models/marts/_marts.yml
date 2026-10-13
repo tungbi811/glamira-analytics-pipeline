@@ -1,0 +1,101 @@
+version: 2
+
+models:
+  - name: dim_date
+    description: One row per day, 2015 to 2035. date_key is YYYYMMDD.
+    columns:
+      - name: date_key
+        data_tests: [unique, not_null]
+
+  - name: dim_product
+    description: One row per crawled product, plus product_key -1 for products never crawled.
+    columns:
+      - name: product_key
+        data_tests: [unique, not_null]
+      - name: product_id
+        data_tests: [unique, not_null]
+
+  - name: dim_store
+    description: One row per store website, plus store_key -1 for test or unmapped stores.
+    columns:
+      - name: store_key
+        data_tests: [unique, not_null]
+      - name: store_id
+        data_tests: [unique, not_null]
+
+  - name: dim_location
+    description: One row per country, region and city from IP2Location, plus location_key -1.
+    columns:
+      - name: location_key
+        data_tests: [unique, not_null]
+
+  - name: dim_customer
+    description: One row per device that placed an order, plus customer_key -1. No email (PII).
+    columns:
+      - name: customer_key
+        data_tests: [unique, not_null]
+      - name: device_id
+        data_tests: [unique, not_null]
+
+  - name: dim_device
+    description: One row per device type, OS and browser seen on orders, plus device_key -1.
+    columns:
+      - name: device_key
+        data_tests: [unique, not_null]
+
+  - name: fact_sales_order_detail
+    description: One row per order line from checkout_success. Amounts in USD.
+    data_tests:
+      - unique:
+          column_name: "CONCAT(order_id, '-', CAST(line_number AS STRING))"
+    columns:
+      - name: date_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+      - name: product_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_product')
+                field: product_key
+      - name: store_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_store')
+                field: store_key
+      - name: location_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_location')
+                field: location_key
+      - name: customer_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customer')
+                field: customer_key
+      - name: device_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_device')
+                field: device_key
+      - name: order_qty
+        data_tests: [not_null]
+      - name: sales_amount_usd
+        description: order_qty * unit price, converted with seeds.exchange_rates. 1 line has no price in raw.
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
